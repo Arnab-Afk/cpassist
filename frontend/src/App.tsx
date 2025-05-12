@@ -1,0 +1,47 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// Importing sample pages
+import HomePage from './pages/HomePage';
+import TopicsPage from './pages/TopicsPage';
+import QuestionsPage from './pages/QuestionsPage';
+import ProgressTrackerPage from './pages/ProgressTrackerPage';
+import ProfilePage from './pages/ProfilePage';
+
+// Import navigation menu
+import MainNavigationMenu from './components/NavigationMenu';
+
+function App() {
+  return (
+    <Router>
+      <div className="min-h-screen flex flex-col">
+        <header className="py-4 px-6 border-b-2 border-border">
+          <div className="container mx-auto flex justify-between items-center">
+            <a href="/" className="text-xl font-bold">CP Assist</a>
+            <MainNavigationMenu />
+          </div>
+        </header>
+        
+        <main className="flex-grow py-4">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/topics" element={<TopicsPage />} />
+            <Route path="/topics/:topicId" element={<TopicsPage />} />
+            <Route path="/questions" element={<QuestionsPage />} />
+            <Route path="/questions/:difficulty" element={<QuestionsPage />} />
+            <Route path="/progress" element={<ProgressTrackerPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+          </Routes>
+        </main>
+        
+        <footer className="py-4 px-6 border-t-2 border-border">
+          <div className="container mx-auto text-center text-sm">
+            <p>© {new Date().getFullYear()} CP Assist Platform. All rights reserved.</p>
+            <p className="text-foreground/70">A platform for competitive programmers to practice and track DSA problems.</p>
+          </div>
+        </footer>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
