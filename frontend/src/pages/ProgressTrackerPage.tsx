@@ -126,23 +126,23 @@ function ProgressTrackerPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Progress Tracker</h1>
       
-      <div className="border-2 border-border rounded-base p-4 mb-6">
+      <div className="border-2 border-border rounded-base p-4 mb-6 dark:bg-gray-800">
         <div className="flex flex-wrap gap-2 mb-6">
           <button 
             onClick={() => setActiveTab('overview')}
-            className={`px-4 py-2 rounded-base ${activeTab === 'overview' ? 'bg-main text-main-foreground' : 'bg-background'}`}
+            className={`px-4 py-2 rounded-base ${activeTab === 'overview' ? 'bg-main text-main-foreground' : 'bg-background dark:bg-gray-700'}`}
           >
             Overview
           </button>
           <button 
             onClick={() => setActiveTab('topics')}
-            className={`px-4 py-2 rounded-base ${activeTab === 'topics' ? 'bg-main text-main-foreground' : 'bg-background'}`}
+            className={`px-4 py-2 rounded-base ${activeTab === 'topics' ? 'bg-main text-main-foreground' : 'bg-background dark:bg-gray-700'}`}
           >
             By Topics
           </button>
           <button 
             onClick={() => setActiveTab('activity')}
-            className={`px-4 py-2 rounded-base ${activeTab === 'activity' ? 'bg-main text-main-foreground' : 'bg-background'}`}
+            className={`px-4 py-2 rounded-base ${activeTab === 'activity' ? 'bg-main text-main-foreground' : 'bg-background dark:bg-gray-700'}`}
           >
             Recent Activity
           </button>
@@ -248,12 +248,12 @@ function ProgressTrackerPage() {
             <h3 className="text-xl font-semibold mb-4">Progress by Topics</h3>
             <div className="space-y-4">
               {mockData.topics.map((topic, index) => (
-                <div key={index} className="border-2 border-border rounded-base p-4">
+                <div key={index} className="border-2 border-border rounded-base p-4 dark:bg-gray-800">
                   <div className="flex justify-between mb-2">
                     <h4 className="font-semibold">{topic.name}</h4>
                     <span className="text-sm">{topic.solved} / {topic.total} solved</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
                     <div 
                       className="bg-main h-2.5 rounded-full" 
                       style={{ width: `${(topic.solved / topic.total) * 100}%` }}
