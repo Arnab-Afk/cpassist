@@ -21,7 +21,7 @@ function App() {
         <BackgroundSquares />
         
         <div className="min-h-screen flex flex-col bg-transparent dark:bg-gray-900/90 text-black dark:text-white relative z-1">
-          <header className="py-4 px-6 border-b-2 border-border backdrop-blur-sm z-20 relative">
+          <header className="py-4 px-6 border-b-2 border-border backdrop-blur-sm z-50 relative">
             <div className="container mx-auto flex justify-between items-center">
               <a href="/" className="text-xl font-bold">CP Assist</a>
               <div className="flex items-center gap-4">
