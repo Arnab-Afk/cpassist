@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 function HomePage() {
   return (
     <div className="container mx-auto px-4 py-8">
+      
       <section className="mb-16">
         <div className="flex flex-col items-center text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Master DSA with CP Assist</h1>
@@ -47,7 +48,7 @@ function HomePage() {
         />
       </section>
 
-      <section className="border-2 border-border rounded-base p-6 bg-main text-main-foreground">
+      <section className="border-2 border-border rounded-base p-6 bg-main text-main-foreground dark:bg-gray-800 dark:text-white">
         <h2 className="text-2xl font-bold mb-4">Getting Started</h2>
         <ol className="list-decimal list-inside space-y-2 ml-4">
           <li>Browse the topics and select one you want to master</li>
@@ -67,7 +68,7 @@ function FeatureCard({ title, description, link, linkText }: {
   linkText: string;
 }) {
   return (
-    <div className="border-2 border-border rounded-base p-6 shadow-[var(--shadow)] hover:translate-y-[-2px] transition-transform">
+    <div className="border-2 border-border rounded-base p-6 shadow-[var(--shadow)] hover:translate-y-[-2px] transition-transform dark:bg-gray-800">
       <h3 className="text-xl font-bold mb-2">{title}</h3>
       <p className="mb-4">{description}</p>
       <Link 

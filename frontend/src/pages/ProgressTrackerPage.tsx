@@ -272,7 +272,7 @@ function ProgressTrackerPage() {
                           href={platform.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 px-3 py-2 rounded-base border border-border hover:bg-gray-50"
+                          className="flex items-center gap-2 px-3 py-2 rounded-base border border-border hover:bg-gray-50 dark:hover:bg-gray-700"
                         >
                           <div className="w-6 h-6 flex items-center justify-center">
                             {platform.name === 'leetcode' && (
