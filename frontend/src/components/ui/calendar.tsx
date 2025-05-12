@@ -1,10 +1,6 @@
-import { ChevronLeft, ChevronRight } from "lucide-react"
 import { DayPicker } from "react-day-picker"
-
 import * as React from "react"
-
 import { buttonVariants } from "@/components/ui/button"
-
 import { cn } from "@/lib/utils"
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
@@ -25,9 +21,8 @@ function Calendar({
       classNames={{
         months: "flex flex-col sm:flex-row gap-2",
         month: "flex flex-col gap-4",
-        caption:
-          "flex justify-center pt-1 relative items-center w-full text-main-foreground",
-        caption_label: "text-sm font-heading",
+        caption_label:
+          "flex justify-center pt-1 relative items-center w-full text-main-foreground text-sm font-heading",
         nav: "gap-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "noShadow" }),
@@ -62,14 +57,6 @@ function Calendar({
         day_range_middle: "aria-selected:bg-black/50! aria-selected:text-white",
         day_hidden: "invisible",
         ...classNames,
-      }}
-      components={{
-        IconLeft: ({ className, ...props }) => (
-          <ChevronLeft className={cn("size-4", className)} {...props} />
-        ),
-        IconRight: ({ className, ...props }) => (
-          <ChevronRight className={cn("size-4", className)} {...props} />
-        ),
       }}
       {...props}
     />
