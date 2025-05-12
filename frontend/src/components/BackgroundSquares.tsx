@@ -1,5 +1,5 @@
 import React from 'react';
-import Squares from './square';
+import Squares from './Squares';
 
 const BackgroundSquares: React.FC = () => {
   return (
