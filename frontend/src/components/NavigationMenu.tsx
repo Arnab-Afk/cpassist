@@ -54,7 +54,7 @@ const dsaTopics: { title: string; href: string; description: string }[] = [
 
 export default function MainNavigationMenu() {
   return (
-    <NavigationMenu className="z-5">
+    <NavigationMenu className="z-50">
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger>DSA Topics</NavigationMenuTrigger>
@@ -80,7 +80,7 @@ export default function MainNavigationMenu() {
               <li className="row-span-3">
                 <NavigationMenuLink asChild>
                   <Link
-                    className="flex h-full w-full select-none flex-col justify-end rounded-base p-6 no-underline outline-hidden"
+                    className="flex h-full w-full select-none flex-col justify-end rounded-md p-6 no-underline outline-hidden dark:text-white bg-muted/50 dark:bg-gray-800/50 border border-border dark:border-gray-700 shadow-sm"
                     to="/questions"
                   >
                     <div className="mb-2 mt-4 text-lg font-heading">
@@ -138,7 +138,7 @@ function ListItem({
       <NavigationMenuLink asChild>
         <Link
           className={cn(
-            "hover:bg-accent block text-main-foreground select-none space-y-1 rounded-base border-2 border-transparent p-3 leading-none no-underline outline-hidden transition-colors hover:border-border",
+            "hover:bg-accent/10 block select-none space-y-1 rounded-base border-2 border-transparent p-3 leading-none no-underline outline-hidden transition-colors hover:border-border dark:hover:border-gray-600 dark:text-white",
             className,
           )}
           to={href}

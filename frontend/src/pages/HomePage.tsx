@@ -68,7 +68,7 @@ function FeatureCard({ title, description, link, linkText }: {
   linkText: string;
 }) {
   return (
-    <div className="border-2 border-border rounded-base p-6 shadow-[var(--shadow)] hover:translate-y-[-2px] transition-transform dark:bg-gray-800">
+    <div className="border-2 border-border rounded-base bg-background p-6 shadow-[var(--shadow)] hover:translate-y-[-2px] transition-transform dark:bg-gray-800">
       <h3 className="text-xl font-bold mb-2">{title}</h3>
       <p className="mb-4">{description}</p>
       <Link 
