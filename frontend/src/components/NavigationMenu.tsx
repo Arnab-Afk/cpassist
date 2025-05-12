@@ -54,11 +54,11 @@ const dsaTopics: { title: string; href: string; description: string }[] = [
 
 export default function MainNavigationMenu() {
   return (
-    <NavigationMenu className="z-50"> {/* Changed from z-5 to z-50 for better stacking */}
+    <NavigationMenu className="z-5">
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger>DSA Topics</NavigationMenuTrigger>
-          <NavigationMenuContent className="backdrop-blur-md bg-background/95"> {/* Added backdrop blur */}
+          <NavigationMenuContent>
             <ul className="grid w-[400px] gap-3 p-2 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
               {dsaTopics.map((topic) => (
                 <ListItem
@@ -75,7 +75,7 @@ export default function MainNavigationMenu() {
         
         <NavigationMenuItem>
           <NavigationMenuTrigger>Practice</NavigationMenuTrigger>
-          <NavigationMenuContent className="backdrop-blur-md bg-background/95"> {/* Added backdrop blur */}
+          <NavigationMenuContent>
             <ul className="grid w-[500px] gap-3 p-2 lg:grid-cols-[.75fr_1fr]">
               <li className="row-span-3">
                 <NavigationMenuLink asChild>
