@@ -1,0 +1,136 @@
+CREATE TABLE users (
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    google_id TEXT UNIQUE NOT NULL,  
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    username TEXT UNIQUE NOT NULL,
+    profile_picture_url TEXT,
+    join_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    current_streak INTEGER DEFAULT 0,
+    longest_streak INTEGER DEFAULT 0,
+    rank TEXT DEFAULT 'Beginner'  
+);
+
+CREATE TABLE user_preferences (
+    preference_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    theme TEXT DEFAULT 'system',  
+    email_notifications BOOLEAN DEFAULT TRUE,
+    daily_reminders BOOLEAN DEFAULT TRUE,
+    achievement_notifications BOOLEAN DEFAULT TRUE,
+    default_problem_view TEXT DEFAULT 'all',  
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE topics (
+    topic_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,  
+    description TEXT NOT NULL
+);
+
+CREATE TABLE problems (
+    problem_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    difficulty TEXT NOT NULL,  
+    topic_id INTEGER NOT NULL,
+    platform TEXT,  
+    external_url TEXT,  
+    FOREIGN KEY (topic_id) REFERENCES topics(topic_id)
+);
+
+CREATE TABLE user_problem_progress (
+    progress_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    problem_id INTEGER NOT NULL,
+    status TEXT NOT NULL,  
+    last_attempt_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completion_date TIMESTAMP,  
+    solution_code TEXT,  
+    notes TEXT,  
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (problem_id) REFERENCES problems(problem_id) ON DELETE CASCADE,
+    UNIQUE(user_id, problem_id)
+);
+
+-- Daily activity tracking
+CREATE TABLE daily_activity (
+    activity_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    date DATE NOT NULL,
+    problems_solved INTEGER DEFAULT 0,
+    problems_attempted INTEGER DEFAULT 0,
+    active_minutes INTEGER DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    UNIQUE(user_id, date)
+);
+
+CREATE TABLE badges (
+    badge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    requirement_type TEXT NOT NULL,  
+    requirement_value INTEGER NOT NULL  
+);
+
+CREATE TABLE user_badges (
+    user_badge_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    badge_id INTEGER NOT NULL,
+    earned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (badge_id) REFERENCES badges(badge_id) ON DELETE CASCADE,
+    UNIQUE(user_id, badge_id)
+);
+
+CREATE TABLE milestones (
+    milestone_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    target_count INTEGER NOT NULL  
+);
+
+CREATE TABLE user_milestone_progress (
+    progress_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    milestone_id INTEGER NOT NULL,
+    current_count INTEGER DEFAULT 0,
+    completed BOOLEAN DEFAULT FALSE,
+    completion_date TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (milestone_id) REFERENCES milestones(milestone_id) ON DELETE CASCADE,
+    UNIQUE(user_id, milestone_id)
+);
+
+CREATE TABLE platform_accounts (
+    link_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    platform TEXT NOT NULL,  
+    username TEXT NOT NULL,
+    profile_url TEXT,
+    last_sync_date TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    UNIQUE(user_id, platform)
+);
+
+CREATE TABLE notifications (
+    notification_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    message TEXT NOT NULL,
+    type TEXT NOT NULL,  
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_user_problem_progress_user_id ON user_problem_progress(user_id);
+CREATE INDEX idx_user_problem_progress_problem_id ON user_problem_progress(problem_id);
+CREATE INDEX idx_daily_activity_user_id ON daily_activity(user_id);
+CREATE INDEX idx_daily_activity_date ON daily_activity(date);
+CREATE INDEX idx_problems_topic_id ON problems(topic_id);
+CREATE INDEX idx_problems_difficulty ON problems(difficulty);
+CREATE INDEX idx_user_badges_user_id ON user_badges(user_id);
+CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX idx_notifications_is_read ON notifications(is_read);
