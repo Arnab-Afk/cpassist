@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import { Menu, LogOut, User } from 'lucide-react';
 
 import {
   NavigationMenu,
@@ -14,6 +14,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { useMobileMenu } from '@/lib/MobileMenuContext';
+import { useAuth } from '@/lib/AuthContext';
 
 const dsaTopics: { title: string; href: string; description: string }[] = [
   {
@@ -56,6 +57,7 @@ const dsaTopics: { title: string; href: string; description: string }[] = [
 
 export default function MainNavigationMenu() {
   const { toggleMobileMenu } = useMobileMenu();
+  const { isAuthenticated, logout } = useAuth();
   
   return (
     <>
@@ -120,13 +122,32 @@ export default function MainNavigationMenu() {
             </Link>
           </NavigationMenuItem>
           
-          <NavigationMenuItem>
-            <Link to="/profile">
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Profile
-              </NavigationMenuLink>
-            </Link>
-          </NavigationMenuItem>
+          {isAuthenticated ? (
+            <>
+              <NavigationMenuItem>
+                <Link to="/profile">
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Profile
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Link to="/" onClick={(e) => { e.preventDefault(); logout(); }}>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                    Logout
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem>
+            </>
+          ) : (
+            <NavigationMenuItem>
+              <Link to="/login">
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Login
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+          )}
         </NavigationMenuList>
       </NavigationMenu>
 

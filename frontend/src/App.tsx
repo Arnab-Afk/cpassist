@@ -6,59 +6,79 @@ import TopicsPage from './pages/TopicsPage';
 import QuestionsPage from './pages/QuestionsPage';
 import ProgressTrackerPage from './pages/ProgressTrackerPage';
 import ProfilePage from './pages/ProfilePage';
+import LoginPage from './pages/LoginPage';
+import AuthCallback from './pages/AuthCallback';
 import BackgroundSquares from './components/BackgroundSquares';
 
 // Import navigation menu and theme components
 import MainNavigationMenu from './components/NavigationMenu';
 import MobileMenu from './components/MobileMenu';
 import ThemeToggle from './components/ThemeToggle';
+import ProtectedRoute from './components/ProtectedRoute';
 import { ThemeProvider } from './lib/ThemeContext';
 import { MobileMenuProvider } from './lib/MobileMenuContext';
+import { AuthProvider } from './lib/AuthContext';
 
 function App() {
   return (
     <ThemeProvider>
-      <MobileMenuProvider>
-        <Router>
-          {/* Background Squares */}
-          <BackgroundSquares />
-          
-          <div className="min-h-screen flex flex-col bg-transparent dark:bg-gray-900/90 text-black dark:text-white relative z-1">
-            <header className="py-4 px-6 border-b-2 border-border backdrop-blur-sm z-50 relative">
-              <div className="container mx-auto flex justify-between items-center">
-                <a href="/" className="text-xl font-bold">CP Assist</a>
-                <div className="flex items-center gap-4">
-                  <MainNavigationMenu />
-                  <ThemeToggle />
+      <AuthProvider>
+        <MobileMenuProvider>
+          <Router>
+            {/* Background Squares */}
+            <BackgroundSquares />
+            
+            <div className="min-h-screen flex flex-col bg-transparent dark:bg-gray-900/90 text-black dark:text-white relative z-1">
+              <header className="py-4 px-6 border-b-2 border-border backdrop-blur-sm z-50 relative">
+                <div className="container mx-auto flex justify-between items-center">
+                  <a href="/" className="text-xl font-bold">CP Assist</a>
+                  <div className="flex items-center gap-4">
+                    <MainNavigationMenu />
+                    <ThemeToggle />
+                  </div>
                 </div>
-              </div>
-            </header>
-            
-            {/* Mobile Menu (outside header) */}
-            <MobileMenu />
-            
-            {/* Rest of your app */}
-            <main className="flex-grow py-4 z-10">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/topics" element={<TopicsPage />} />
-                <Route path="/topics/:topicId" element={<TopicsPage />} />
-                <Route path="/questions" element={<QuestionsPage />} />
-                <Route path="/questions/:difficulty" element={<QuestionsPage />} />
-                <Route path="/progress" element={<ProgressTrackerPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-              </Routes>
-            </main>
-          
-          <footer className="py-4 px-6 border-t-2 border-border backdrop-blur-sm">
-            <div className="container mx-auto text-center text-sm">
-              <p>© {new Date().getFullYear()} CP Assist Platform. All rights reserved.</p>
-              <p className="text-foreground/70">A platform for competitive programmers to practice and track DSA problems.</p>
+              </header>
+              
+              {/* Mobile Menu (outside header) */}
+              <MobileMenu />
+              
+              {/* Rest of your app */}
+              <main className="flex-grow py-4 z-10">
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/topics" element={<TopicsPage />} />
+                  <Route path="/topics/:topicId" element={<TopicsPage />} />
+                  <Route path="/questions" element={<QuestionsPage />} />
+                  <Route path="/questions/:difficulty" element={<QuestionsPage />} />
+                  <Route path="/progress" element={
+                    <ProtectedRoute>
+                      <ProgressTrackerPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/profile" element={
+                    <ProtectedRoute>
+                      <ProfilePage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/login" element={
+                    <ProtectedRoute requireAuth={false}>
+                      <LoginPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/auth/callback" element={<AuthCallback />} />
+                </Routes>
+              </main>
+              
+              <footer className="py-4 px-6 border-t-2 border-border backdrop-blur-sm">
+                <div className="container mx-auto text-center text-sm">
+                  <p>© {new Date().getFullYear()} CP Assist Platform. All rights reserved.</p>
+                  <p className="text-foreground/70">A platform for competitive programmers to practice and track DSA problems.</p>
+                </div>
+              </footer>
             </div>
-          </footer>
-        </div>
-        </Router>
-      </MobileMenuProvider>
+          </Router>
+        </MobileMenuProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

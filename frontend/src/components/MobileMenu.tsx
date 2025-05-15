@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { X, ChevronRight } from 'lucide-react';
+import { X, ChevronRight, LogOut } from 'lucide-react';
 import { useMobileMenu } from '@/lib/MobileMenuContext';
+import { useAuth } from '@/lib/AuthContext';
 import './MobileMenu.css';
 
 // Re-using the topics from NavigationMenu
@@ -45,6 +46,7 @@ const dsaTopics: { title: string; href: string; description: string }[] = [
 
 export default function MobileMenu() {
   const { mobileMenuOpen, toggleMobileMenu } = useMobileMenu();
+  const { isAuthenticated, logout } = useAuth();
 
   if (!mobileMenuOpen) return null;
 
@@ -140,13 +142,35 @@ export default function MobileMenu() {
               >
                 Progress Tracker
               </Link>
-              <Link 
-                to="/profile" 
-                className="flex items-center text-lg font-medium py-3 hover:text-primary dark:hover:text-primary transition-colors"
-                onClick={toggleMobileMenu}
-              >
-                Profile
-              </Link>
+              
+              {isAuthenticated ? (
+                <>
+                  <Link 
+                    to="/profile" 
+                    className="flex items-center text-lg font-medium py-3 hover:text-primary dark:hover:text-primary transition-colors"
+                    onClick={toggleMobileMenu}
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      toggleMobileMenu();
+                    }}
+                    className="flex items-center text-lg font-medium py-3 w-full text-left hover:text-primary dark:hover:text-primary transition-colors"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <Link 
+                  to="/login" 
+                  className="flex items-center text-lg font-medium py-3 hover:text-primary dark:hover:text-primary transition-colors"
+                  onClick={toggleMobileMenu}
+                >
+                  Login
+                </Link>
+              )}
             </div>
           </div>
           
