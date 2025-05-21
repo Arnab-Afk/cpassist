@@ -5,7 +5,7 @@ import { CalendarIcon, TrophyIcon, StarIcon, UserIcon } from 'lucide-react';
 
 const UserProfile: React.FC = () => {
   const { user } = useAuth();
-  const [userProfilePic , setuserProfilePic]= useState(user?.profilePicture);
+  const [userProfilePic ]= useState(user?.profilePicture);
   if (!user) {
     return null;
   }

@@ -27,7 +27,7 @@ const AuthError: React.FC<AuthErrorProps> = ({ error, onRetry }) => {
             {onRetry && (
               <Button 
                 onClick={onRetry}
-                variant="outline"
+                variant="default"
               >
                 Try Again
               </Button>

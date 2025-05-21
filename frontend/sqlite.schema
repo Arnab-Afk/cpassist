@@ -19,6 +19,7 @@ CREATE TABLE user_preferences (
     email_notifications BOOLEAN DEFAULT TRUE,
     daily_reminders BOOLEAN DEFAULT TRUE,
     achievement_notifications BOOLEAN DEFAULT TRUE,
+    preferred_language TEXT DEFAULT 'JavaScript',
     default_problem_view TEXT DEFAULT 'all',  
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );

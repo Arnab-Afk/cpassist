@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { X, ChevronRight, LogOut } from 'lucide-react';
+import { X, ChevronRight } from 'lucide-react';
 import { useMobileMenu } from '@/lib/MobileMenuContext';
 import { useAuth } from '@/lib/AuthContext';
 import './MobileMenu.css';

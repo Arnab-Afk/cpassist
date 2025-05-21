@@ -4,7 +4,7 @@ import { PageLoader } from '@/components/LoadingSpinner';
 import { useAuth } from '@/lib/AuthContext';
 import { getWithAuth, postWithAuth } from '@/lib/api';
 import type { UserActivity, Badge, UserPreferences } from '@/lib/types';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle } from 'lucide-react';
 
 // Update this type to match backend response
 interface BadgesResponse {
@@ -20,6 +20,7 @@ function ProfilePage() {
   const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
   const [isDataLoading, setIsDataLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Fetch user data from the backend
   useEffect(() => {
@@ -110,19 +111,31 @@ function ProfilePage() {
           <div className="flex border-b-2 border-border">
             <button
               className={`flex-1 py-3 px-4 text-center ${activeSection === 'profile' ? 'bg-main text-main-foreground' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-              onClick={() => setActiveSection('profile')}
+              onClick={() => {
+                setActiveSection('profile');
+                setError(null);
+                setSuccessMessage(null);
+              }}
             >
               Activity
             </button>
             <button
               className={`flex-1 py-3 px-4 text-center ${activeSection === 'preferences' ? 'bg-main text-main-foreground' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-              onClick={() => setActiveSection('preferences')}
+              onClick={() => {
+                setActiveSection('preferences');
+                setError(null);
+                setSuccessMessage(null);
+              }}
             >
               Preferences
             </button>
             <button
               className={`flex-1 py-3 px-4 text-center ${activeSection === 'badges' ? 'bg-main text-main-foreground' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-              onClick={() => setActiveSection('badges')}
+              onClick={() => {
+                setActiveSection('badges');
+                setError(null);
+                setSuccessMessage(null);
+              }}
             >
               Badges & Achievements
             </button>
@@ -293,10 +306,13 @@ function ProfilePage() {
                       </div>
                       <div>
                         <select 
-                          className="px-3 py-2 rounded-md border border-border bg-white dark:bg-gray-700"
+                          className="px-3 py-2 rounded-md border border-border bg-white dark:bg-gray-700 transition-all hover:border-main focus:outline-none focus:ring-2 focus:ring-main focus:ring-opacity-50"
                           value={userPreferences.preferred_language || 'JavaScript'}
                           onChange={(e) => {
-                            // To implement: Update preferred language
+                            setUserPreferences({
+                              ...userPreferences,
+                              preferred_language: e.target.value
+                            });
                           }}
                         >
                           <option value="JavaScript">JavaScript</option>
@@ -311,12 +327,43 @@ function ProfilePage() {
                     <div className="mt-6 flex justify-end">
                       <button 
                         className="px-4 py-2 bg-main text-main-foreground rounded-md"
-                        onClick={() => {
-                          // To implement: Save all preferences
+                        onClick={async () => {
+                          if (!token) return;
+                          
+                          try {
+                            setIsDataLoading(true);
+                            const updatedPreferences = await postWithAuth<UserPreferences>(
+                              'https://cpbackend.arnabbhowmik019.workers.dev/preferences',
+                              userPreferences,
+                              token
+                            );
+                            // Update the state with the response from the server
+                            setUserPreferences(updatedPreferences);
+                            // Show success feedback
+                            setError(null);
+                            setSuccessMessage('Preferences saved successfully!');
+                            // Clear success message after 3 seconds
+                            setTimeout(() => {
+                              setSuccessMessage(null);
+                            }, 3000);
+                          } catch (err) {
+                            console.error('Error saving preferences:', err);
+                            setError('Failed to save preferences. Please try again.');
+                          } finally {
+                            setIsDataLoading(false);
+                          }
                         }}
                       >
                         Save Preferences
                       </button>
+                      
+                      {/* Success message */}
+                      {successMessage && (
+                        <div className="mt-4 p-3 bg-green-100 text-green-700 rounded-md flex items-center">
+                          <CheckCircle className="mr-2" size={18} />
+                          {successMessage}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

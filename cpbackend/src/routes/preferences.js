@@ -54,7 +54,8 @@ export async function updateUserPreferences(request) {
       'email_notifications', 
       'daily_reminders',
       'achievement_notifications',
-      'default_problem_view'
+      'default_problem_view',
+      'preferred_language'
     ];
     
     const updateData = {};
