@@ -1,5 +1,5 @@
 /**
- * Get user preferences
+ * Get user preference
  */
 export async function getUserPreferences(request) {
   try {

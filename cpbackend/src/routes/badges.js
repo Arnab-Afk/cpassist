@@ -1,5 +1,5 @@
 /**
- * Get all available badges
+ * Get all available badge
  */
 export async function getAllBadges(request) {
   try {

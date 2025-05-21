@@ -1,5 +1,5 @@
 /**
- * Get user's activity history
+ * Get user's activity histor
  */
 export async function getUserActivity(request) {
   try {

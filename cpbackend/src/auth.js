@@ -1,5 +1,5 @@
 /**
- * Simple token implementation without jose
+ * Simple token implementation without jos
  * Note: In production, you should use a proper JWT library
  */
 

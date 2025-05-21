@@ -1,5 +1,5 @@
 /**
- * Handle CORS preflight requests
+ * Handle CORS preflight requestss
  */
 export function handleCors(request) {
   return new Response(null, {

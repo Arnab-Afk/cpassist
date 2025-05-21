@@ -1,5 +1,5 @@
 /**
- * Get current user information
+ * Get current user informations
  */
 export async function getCurrentUser(request) {
   try {

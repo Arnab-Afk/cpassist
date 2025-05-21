@@ -1,5 +1,5 @@
 /**
- * Get all problems with optional filtering
+ * Get all problems with optional filterings
  */
 export async function getAllProblems(request) {
   try {
