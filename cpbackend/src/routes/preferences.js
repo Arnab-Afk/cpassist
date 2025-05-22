@@ -48,6 +48,8 @@ export async function updateUserPreferences(request) {
     const db = request.env.DB;
     const updates = await request.json();
     
+    console.log(`Updating preferences for user ${userId} with:`, updates);
+    
     // Only allow updating specific fields
     const allowedUpdates = [
       'theme', 
@@ -62,11 +64,26 @@ export async function updateUserPreferences(request) {
     
     for (const key of allowedUpdates) {
       if (updates[key] !== undefined) {
-        updateData[key] = updates[key];
+        // Special handling for preferred_language
+        if (key === 'preferred_language') {
+          console.log(`Setting preferred_language to: "${updates[key]}"`);
+          // Make sure it's valid
+          if (typeof updates[key] !== 'string') {
+            console.warn(`Invalid preferred_language value: ${updates[key]}, using default`);
+            updateData[key] = 'JavaScript';
+          } else {
+            updateData[key] = updates[key];
+          }
+        } else {
+          updateData[key] = updates[key];
+        }
       }
     }
     
+    console.log('Filtered update data:', updateData);
+    
     if (Object.keys(updateData).length === 0) {
+      console.log('No valid fields to update');
       return new Response(JSON.stringify({ error: 'No valid fields to update' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
@@ -105,12 +122,19 @@ export async function updateUserPreferences(request) {
       'SELECT * FROM user_preferences WHERE user_id = ?'
     ).bind(userId).first();
     
+    console.log('Updated preferences:', updatedPreferences);
+    
     return new Response(JSON.stringify(updatedPreferences), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Failed to update preferences' }), {
+    console.error('Error updating preferences:', error);
+    return new Response(JSON.stringify({ 
+      error: 'Failed to update preferences',
+      message: error.message,
+      stack: error.stack
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
