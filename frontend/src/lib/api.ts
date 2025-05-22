@@ -58,19 +58,68 @@ export async function getWithAuth<T>(url: string, token: string): Promise<T> {
  * Shorthand for making an authenticated POST request
  */
 export async function postWithAuth<T>(url: string, data: any, token: string): Promise<T> {
-  const response = await fetchWithAuth(
-    url, 
-    { 
-      method: 'POST',
-      body: JSON.stringify(data)
-    }, 
-    token
-  );
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `Failed to post data: ${response.status}`);
+  try {
+    console.log(`Making POST request to ${url}`);
+    
+    const response = await fetchWithAuth(
+      url, 
+      { 
+        method: 'POST',
+        body: JSON.stringify(data)
+      }, 
+      token
+    );
+    
+    console.log(`POST response status: ${response.status}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({
+        message: 'Could not parse error response'
+      }));
+      
+      console.error('Error response data:', errorData);
+      throw new Error(errorData.message || errorData.error || `Failed to post data: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    return result as T;
+  } catch (error) {
+    console.error('Error in postWithAuth:', error);
+    throw error;
   }
-  
-  return response.json();
+}
+
+/**
+ * Shorthand for making an authenticated PUT request
+ */
+export async function putWithAuth<T>(url: string, data: any, token: string): Promise<T> {
+  try {
+    console.log(`Making PUT request to ${url}`);
+    
+    const response = await fetchWithAuth(
+      url, 
+      { 
+        method: 'PUT',
+        body: JSON.stringify(data)
+      }, 
+      token
+    );
+    
+    console.log(`PUT response status: ${response.status}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({
+        message: 'Could not parse error response'
+      }));
+      
+      console.error('Error response data:', errorData);
+      throw new Error(errorData.message || errorData.error || `Failed to put data: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    return result as T;
+  } catch (error) {
+    console.error('Error in putWithAuth:', error);
+    throw error;
+  }
 }

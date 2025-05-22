@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import UserProfile from '@/components/UserProfile';
 import { PageLoader } from '@/components/LoadingSpinner';
 import { useAuth } from '@/lib/AuthContext';
-import { getWithAuth, postWithAuth } from '@/lib/api';
+import { getWithAuth, putWithAuth } from '@/lib/api';
 import type { UserActivity, Badge, UserPreferences } from '@/lib/types';
 import { AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -332,11 +332,16 @@ function ProfilePage() {
                           
                           try {
                             setIsDataLoading(true);
-                            const updatedPreferences = await postWithAuth<UserPreferences>(
+                            // Prepare preferences data for update - exclude user_id
+                            const { user_id, ...preferencesToUpdate } = userPreferences;
+                            console.log('Sending preferences update:', JSON.stringify(preferencesToUpdate));
+                            
+                            const updatedPreferences = await putWithAuth<UserPreferences>(
                               'https://cpbackend.arnabbhowmik019.workers.dev/preferences',
-                              userPreferences,
+                              preferencesToUpdate,
                               token
                             );
+                            console.log('Received updated preferences:', JSON.stringify(updatedPreferences));
                             // Update the state with the response from the server
                             setUserPreferences(updatedPreferences);
                             // Show success feedback
@@ -348,7 +353,12 @@ function ProfilePage() {
                             }, 3000);
                           } catch (err) {
                             console.error('Error saving preferences:', err);
-                            setError('Failed to save preferences. Please try again.');
+                            let errorMessage = 'Failed to save preferences. Please try again.';
+                            if (err instanceof Error) {
+                              errorMessage += ` (${err.message})`;
+                              console.error('Error details:', err.message);
+                            }
+                            setError(errorMessage);
                           } finally {
                             setIsDataLoading(false);
                           }
