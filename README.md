@@ -1,124 +1,67 @@
-# CPAssist
 
-A modern web application built with React, TypeScript, and Tailwind CSS.
 
-## 🚀 Features
+## CPAssist - Competitive Programming Assistant
 
-- **Modern Frontend**: Built with React 19 and TypeScript for type safety
-- **Responsive Design**: Styled with Tailwind CSS for a mobile-first approach
-- **Component Library**: Utilizes Radix UI components for accessibility
-- **Fast Development**: Powered by Vite for lightning-fast builds and hot reload
-- **Code Quality**: ESLint configuration for maintaining code standards
+**CPAssist** is a comprehensive web platform designed to help competitive programmers master Data Structures and Algorithms (DSA). Here's what the project offers:
 
-## 🛠️ Tech Stack
+### 🎯 Project Purpose
+CPAssist is a modern web application that serves as a complete learning and practice platform for competitive programming. It helps users:
+- Track their progress across different DSA topics
+- Practice problems organized by difficulty and topic
+- Monitor their improvement over time with visual analytics
+- Access problems from multiple competitive programming platforms
 
-- **Frontend Framework**: React 19
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Build Tool**: Vite
-- **UI Components**: Radix UI
-- **Icons**: Lucide React
+### 🏗️ Architecture & Tech Stack
+- **Frontend Framework**: React 19 with TypeScript for type safety
+- **Styling**: Tailwind CSS with custom design system
+- **Build Tool**: Vite for fast development and builds
+- **UI Components**: Radix UI for accessibility
 - **Routing**: React Router DOM
+- **Icons**: Lucide React
 - **Date Handling**: date-fns
 
-## 📦 Installation
+### 🚀 Key Features
 
-1. Clone the repository:
-```bash
-git clone https://github.com/Arnab-Afk/cpassist.git
-cd cpassist
-```
+1. **Topic-Based Learning**
+   - Organized DSA topics (Arrays, Linked Lists, Trees/Graphs, Dynamic Programming, etc.)
+   - Progressive difficulty levels (Easy → Medium → Hard)
+   - Topic-specific progress tracking
 
-2. Navigate to the frontend directory:
-```bash
-cd frontend
-```
+2. **Problem Management**
+   - Curated problem sets with descriptions
+   - Difficulty-based filtering
+   - Solved/unsolved status tracking
+   - Integration with popular platforms (LeetCode, Codeforces, CodeChef)
 
-3. Install dependencies:
-```bash
-npm install
-```
+3. **Progress Tracking**
+   - Visual progress analytics
+   - Platform-wise statistics
+   - Milestone achievements
+   - Topic-wise progress breakdown
 
-## 🚀 Getting Started
+4. **User Profile & Preferences**
+   - Customizable problem view settings
+   - Badges and achievements system
+   - Personal statistics dashboard
 
-### Development
+5. **Modern UI/UX**
+   - Dark/Light theme support
+   - Responsive design for all devices
+   - Smooth animations and interactions
+   - Accessible components
 
-Start the development server:
-```bash
-npm run dev
-```
+### 📱 Main Pages & Navigation
+- **Home**: Landing page with feature overview and getting started guide
+- **Topics**: Browse and explore different DSA topics
+- **Questions**: Practice problems with filtering by difficulty and topic
+- **Progress**: Detailed analytics and progress tracking
+- **Profile**: User settings, preferences, and achievements
 
-The application will be available at `http://localhost:5173`
+### 🎨 Design System
+The project uses a custom design system with:
+- CSS custom properties for theming
+- Consistent border radius and shadows
+- Responsive grid layouts
+- Accessible color schemes
 
-### Build
-
-Create a production build:
-```bash
-npm run build
-```
-
-### Preview
-
-Preview the production build locally:
-```bash
-npm run preview
-```
-
-### Linting
-
-Run ESLint to check code quality:
-```bash
-npm run lint
-```
-
-## 📁 Project Structure
-
-```
-cpassist/
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   └── ...
-│   ├── package.json
-│   └── ...
-└── README.md
-```
-
-## 🧩 Key Dependencies
-
-- **@radix-ui/react-navigation-menu**: Accessible navigation components
-- **@radix-ui/react-progress**: Progress indicator components
-- **class-variance-authority**: Utility for managing component variants
-- **clsx**: Conditional className utility
-- **react-day-picker**: Date picker component
-- **tailwind-merge**: Tailwind CSS class merging utility
-
-## 📝 Scripts
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run lint` | Run ESLint |
-| `npm run preview` | Preview production build |
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is private and proprietary.
-
-## 👨‍💻 Author
-
-**Arnab** - [@Arnab-Afk](https://github.com/Arnab-Afk)
-
----
-
-⭐ Star this repository if you find it helpful!
+This project is perfect for competitive programming enthusiasts who want a structured approach to practicing DSA problems while keeping track of their learning journey across multiple platforms.
