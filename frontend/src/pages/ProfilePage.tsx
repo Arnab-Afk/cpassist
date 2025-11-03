@@ -232,7 +232,7 @@ function ProfilePage() {
                   <div className="text-xs font-medium">Problems</div>
                 </div>
                 <div className="text-center p-3 border-2 border-border rounded-base bg-gradient-to-br from-orange-500/10 to-orange-500/5 hover:translate-y-[-2px] transition-transform shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
-                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">🔥 {user.currentStreak}</div>
+                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400"> {user.currentStreak}</div>
                   <div className="text-xs font-medium">Day Streak</div>
                 </div>
               </div>

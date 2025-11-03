@@ -1,126 +1,110 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProblemStatistics from '../components/ProblemStatistics';
 import StreakCalendar from '../components/StreakCalendar';
+import { userAPI } from '../lib/apiClient';
+import apiClient from '../lib/apiClient';
 
 // Import platform logos
 import leetcodeLogo from '../assets/leetcode.png';
 import codeforcesLogo from '../assets/codeforces.png';
 import codechefLogo from '../assets/codechef.svg';
 
-// Mock data for tracking progress
-const mockData = {
-  totalQuestions: 450,
-  solvedQuestions: 125,
-  easyQuestions: { total: 200, solved: 85 },
-  mediumQuestions: { total: 150, solved: 35 },
-  hardQuestions: { total: 100, solved: 5 },
-  platformStats: [
-    { name: "leetcode", solved: 65, total: 200, logo: leetcodeLogo, link: "https://leetcode.com/problemset/" },
-    { name: "codeforces", solved: 40, total: 150, logo: codeforcesLogo, link: "https://codeforces.com/problemset" },
-    { name: "codechef", solved: 20, total: 100, logo: codechefLogo, link: "https://www.codechef.com/problems" }
-  ],
-  topics: [
-    { 
-      name: "Arrays & Strings", 
-      total: 80, 
-      solved: 45,
-      platforms: [
-        { name: "leetcode", count: 25, link: "https://leetcode.com/tag/array/" },
-        { name: "codeforces", count: 15, link: "https://codeforces.com/problemset?tags=implementation,strings" },
-        { name: "codechef", count: 5, link: "https://www.codechef.com/tags/problems/arrays" }
-      ]
-    },
-    { 
-      name: "Linked Lists", 
-      total: 60, 
-      solved: 20,
-      platforms: [
-        { name: "leetcode", count: 12, link: "https://leetcode.com/tag/linked-list/" },
-        { name: "codeforces", count: 5, link: "https://codeforces.com/problemset?tags=data+structures" },
-        { name: "codechef", count: 3, link: "https://www.codechef.com/tags/problems/linked-lists" }
-      ]
-    },
-    { 
-      name: "Stacks & Queues", 
-      total: 40, 
-      solved: 15,
-      platforms: [
-        { name: "leetcode", count: 8, link: "https://leetcode.com/tag/stack/" },
-        { name: "codeforces", count: 5, link: "https://codeforces.com/problemset?tags=data+structures" },
-        { name: "codechef", count: 2, link: "https://www.codechef.com/tags/problems/stacks" }
-      ]
-    },
-    { 
-      name: "Trees & Graphs", 
-      total: 70, 
-      solved: 20,
-      platforms: [
-        { name: "leetcode", count: 10, link: "https://leetcode.com/tag/tree/" },
-        { name: "codeforces", count: 7, link: "https://codeforces.com/problemset?tags=graphs,trees" },
-        { name: "codechef", count: 3, link: "https://www.codechef.com/tags/problems/trees" }
-      ]
-    },
-    { 
-      name: "Dynamic Programming", 
-      total: 60, 
-      solved: 10,
-      platforms: [
-        { name: "leetcode", count: 5, link: "https://leetcode.com/tag/dynamic-programming/" },
-        { name: "codeforces", count: 3, link: "https://codeforces.com/problemset?tags=dp" },
-        { name: "codechef", count: 2, link: "https://www.codechef.com/tags/problems/dynamic-programming" }
-      ]
-    },
-    { 
-      name: "Sorting & Searching", 
-      total: 50, 
-      solved: 15,
-      platforms: [
-        { name: "leetcode", count: 7, link: "https://leetcode.com/tag/sorting/" },
-        { name: "codeforces", count: 5, link: "https://codeforces.com/problemset?tags=binary+search,sortings" },
-        { name: "codechef", count: 3, link: "https://www.codechef.com/tags/problems/sorting" }
-      ]
-    },
-    { 
-      name: "Others", 
-      total: 90, 
-      solved: 0,
-      platforms: [
-        { name: "leetcode", count: 0, link: "https://leetcode.com/problemset/all/" },
-        { name: "codeforces", count: 0, link: "https://codeforces.com/problemset" },
-        { name: "codechef", count: 0, link: "https://www.codechef.com/problems" }
-      ]
-    }
-  ],
-  recentActivity: [
-    { id: 1, problem: "Two Sum", date: "2025-05-11", result: "Solved", platform: "leetcode", link: "https://leetcode.com/problems/two-sum/" },
-    { id: 2, problem: "Valid Parentheses", date: "2025-05-10", result: "Solved", platform: "leetcode", link: "https://leetcode.com/problems/valid-parentheses/" },
-    { id: 3, problem: "LRU Cache", date: "2025-05-09", result: "Attempted", platform: "leetcode", link: "https://leetcode.com/problems/lru-cache/" },
-    { id: 4, problem: "Course Schedule", date: "2025-05-08", result: "Solved", platform: "codeforces", link: "https://codeforces.com/problemset/problem/1350/A" },
-    { id: 5, problem: "Longest Increasing Subsequence", date: "2025-05-07", result: "Solved", platform: "codechef", link: "https://www.codechef.com/problems/LIS" }
-  ],
-  streakData: [
-    { date: "2025-05-12", count: 2 },
-    { date: "2025-05-11", count: 3 },
-    { date: "2025-05-10", count: 1 },
-    { date: "2025-05-09", count: 2 },
-    { date: "2025-05-08", count: 4 },
-    { date: "2025-05-07", count: 5 },
-    { date: "2025-05-06", count: 0 },
-    { date: "2025-05-05", count: 0 },
-    { date: "2025-05-04", count: 1 },
-    { date: "2025-05-03", count: 2 },
-    { date: "2025-05-02", count: 0 },
-    { date: "2025-05-01", count: 1 },
-    { date: "2025-04-30", count: 3 },
-    { date: "2025-04-29", count: 2 },
-    { date: "2025-04-28", count: 1 }
-  ],
-  currentStreak: 7,
-  longestStreak: 15
-};
-
 function ProgressTrackerPage() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'topics' | 'activity'>('overview');
+  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState<any>(null);
+  const [topics, setTopics] = useState<any[]>([]);
+  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [problems, setProblems] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch user profile data
+        const profile = await userAPI.getProfile();
+        
+        // Fetch all topics
+        const topicsResponse = await apiClient.get('/topics');
+        
+        // Fetch recent submissions
+        const submissionsResponse = await apiClient.get('/submissions/user?page=0&size=10');
+        
+        // Fetch all problems to get counts by difficulty
+        const problemsResponse = await apiClient.get('/problems?page=0&size=1000');
+        
+        setUserData(profile);
+        setTopics(topicsResponse.data || []);
+        setSubmissions(submissionsResponse.data?.content || []);
+        setProblems(problemsResponse.data?.content || []);
+        setLoading(false);
+      } catch (error) {
+        console.error('Failed to fetch progress data:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-main mb-4"></div>
+          <p className="text-lg">Loading your progress...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <p>Please log in to view your progress</p>
+        <button onClick={() => navigate('/login')} className="mt-4 px-4 py-2 bg-main text-main-foreground rounded-base">
+          Go to Login
+        </button>
+      </div>
+    );
+  }
+
+  // Calculate statistics from real data
+  const totalSolved = userData.solvedProblems?.length || 0;
+  const totalAvailable = problems.length;
+  
+  // Count problems by difficulty
+  const easyProblems = problems.filter(p => p.difficulty === 'EASY');
+  const mediumProblems = problems.filter(p => p.difficulty === 'MEDIUM');
+  const hardProblems = problems.filter(p => p.difficulty === 'HARD');
+  
+  // Calculate solved by difficulty (from submissions or solved problems)
+  const easySolved = userData.solvedProblems?.filter((id: string) => 
+    problems.find(p => p.id === id && p.difficulty === 'EASY')
+  ).length || 0;
+  const mediumSolved = userData.solvedProblems?.filter((id: string) => 
+    problems.find(p => p.id === id && p.difficulty === 'MEDIUM')
+  ).length || 0;
+  const hardSolved = userData.solvedProblems?.filter((id: string) => 
+    problems.find(p => p.id === id && p.difficulty === 'HARD')
+  ).length || 0;
+
+  // Generate streak data for calendar (last 15 days)
+  const generateStreakData = () => {
+    const data = [];
+    const today = new Date();
+    for (let i = 14; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      // TODO: Get actual count from submissions on that date
+      data.push({
+        date: date.toISOString().split('T')[0],
+        count: i < (userData.profile?.currentStreak || 0) ? Math.floor(Math.random() * 3) + 1 : 0
+      });
+    }
+    return data;
+  };
   
   return (
     <div className="container mx-auto px-4 py-8">
@@ -152,93 +136,113 @@ function ProgressTrackerPage() {
           <div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <ProblemStatistics
-                totalCompleted={mockData.solvedQuestions}
-                totalAvailable={mockData.totalQuestions}
+                totalCompleted={totalSolved}
+                totalAvailable={totalAvailable}
                 byDifficulty={{
-                  easy: { completed: mockData.easyQuestions.solved, total: mockData.easyQuestions.total },
-                  medium: { completed: mockData.mediumQuestions.solved, total: mockData.mediumQuestions.total },
-                  hard: { completed: mockData.hardQuestions.solved, total: mockData.hardQuestions.total }
+                  easy: { completed: easySolved, total: easyProblems.length },
+                  medium: { completed: mediumSolved, total: mediumProblems.length },
+                  hard: { completed: hardSolved, total: hardProblems.length }
                 }}
               />
               
               <StreakCalendar
-                data={mockData.streakData}
-                currentStreak={mockData.currentStreak}
-                longestStreak={mockData.longestStreak}
+                data={generateStreakData()}
+                currentStreak={userData.profile?.currentStreak || 0}
+                longestStreak={userData.profile?.longestStreak || 0}
               />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <ProgressCard 
                 title="Overall Progress" 
-                total={mockData.totalQuestions} 
-                solved={mockData.solvedQuestions}
+                total={totalAvailable} 
+                solved={totalSolved}
                 bgClass="bg-main text-main-foreground"
               />
               <ProgressCard 
                 title="Easy Problems" 
-                total={mockData.easyQuestions.total} 
-                solved={mockData.easyQuestions.solved}
-                bgClass="bg-green-100 text-green-800"
+                total={easyProblems.length} 
+                solved={easySolved}
+                bgClass="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200"
               />
               <ProgressCard 
                 title="Medium Problems" 
-                total={mockData.mediumQuestions.total} 
-                solved={mockData.mediumQuestions.solved}
-                bgClass="bg-yellow-100 text-yellow-800"
+                total={mediumProblems.length} 
+                solved={mediumSolved}
+                bgClass="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200"
               />
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <ProgressCard 
                 title="Hard Problems" 
-                total={mockData.hardQuestions.total} 
-                solved={mockData.hardQuestions.solved}
-                bgClass="bg-red-100 text-red-800"
+                total={hardProblems.length} 
+                solved={hardSolved}
+                bgClass="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200"
               />
               <div className="border-2 border-border rounded-base p-4 col-span-1 md:col-span-2">
                 <h3 className="text-xl font-semibold mb-3">Milestone Progress</h3>
                 <div className="space-y-4">
-                  <Milestone name="Beginner" target={50} current={mockData.solvedQuestions} />
-                  <Milestone name="Intermediate" target={150} current={mockData.solvedQuestions} />
-                  <Milestone name="Advanced" target={300} current={mockData.solvedQuestions} />
-                  <Milestone name="Expert" target={450} current={mockData.solvedQuestions} />
+                  <Milestone name="Beginner" target={50} current={totalSolved} />
+                  <Milestone name="Intermediate" target={150} current={totalSolved} />
+                  <Milestone name="Advanced" target={300} current={totalSolved} />
+                  <Milestone name="Expert" target={450} current={totalSolved} />
                 </div>
               </div>
             </div>
             
             <div className="border-2 border-border rounded-base p-4 mt-8">
               <h3 className="text-xl font-semibold mb-4">Progress by Platform</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {mockData.platformStats.map((platform, index) => (
-                  <div key={index} className="border border-border rounded-base p-4">
-                    <div className="flex items-center mb-3">
-                      <div className="w-8 h-8 mr-3">
-                        <img src={platform.logo} alt={platform.name} className="max-h-full" />
+              {userData.preferences?.platformStats && Object.keys(userData.preferences.platformStats).length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {Object.entries(userData.preferences.platformStats).map(([platformName, stats]: [string, any]) => {
+                    const platformInfo = {
+                      leetcode: { logo: 'https://leetcode.com/favicon.ico', link: 'https://leetcode.com' },
+                      codeforces: { logo: 'https://codeforces.com/favicon.ico', link: 'https://codeforces.com' },
+                      codechef: { logo: 'https://codechef.com/favicon.ico', link: 'https://www.codechef.com' }
+                    }[platformName.toLowerCase()] || { logo: '', link: '#' };
+                    
+                    const solved = stats.problemsSolved || 0;
+                    const total = 1000; // Default total, can be made dynamic
+                    
+                    return (
+                      <div key={platformName} className="border border-border rounded-base p-4">
+                        <div className="flex items-center mb-3">
+                          {platformInfo.logo && (
+                            <div className="w-8 h-8 mr-3">
+                              <img src={platformInfo.logo} alt={platformName} className="max-h-full" />
+                            </div>
+                          )}
+                          <h4 className="font-semibold capitalize">{platformName}</h4>
+                        </div>
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm">{solved} solved</span>
+                          {stats.rating && <span className="text-sm">Rating: {stats.rating}</span>}
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5 mb-3">
+                          <div 
+                            className="bg-main h-2.5 rounded-full" 
+                            style={{ width: `${Math.min((solved / total) * 100, 100)}%` }}
+                          ></div>
+                        </div>
+                        <a 
+                          href={platformInfo.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block text-center w-full mt-2 px-3 py-2 bg-main text-main-foreground rounded-base text-sm hover:opacity-90"
+                        >
+                          Practice on {platformName.charAt(0).toUpperCase() + platformName.slice(1)}
+                        </a>
                       </div>
-                      <h4 className="font-semibold capitalize">{platform.name}</h4>
-                    </div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm">{platform.solved} / {platform.total} solved</span>
-                      <span className="text-sm">{Math.round((platform.solved / platform.total) * 100)}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5 mb-3">
-                      <div 
-                        className="bg-main h-2.5 rounded-full" 
-                        style={{ width: `${(platform.solved / platform.total) * 100}%` }}
-                      ></div>
-                    </div>
-                    <a 
-                      href={platform.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block text-center w-full mt-2 px-3 py-2 bg-main text-main-foreground rounded-base text-sm hover:opacity-90"
-                    >
-                      Practice on {platform.name.charAt(0).toUpperCase() + platform.name.slice(1)}
-                    </a>
-                  </div>
-                ))}
-              </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>No platform statistics available yet.</p>
+                  <p className="text-sm mt-2">Add your platform stats in your profile settings.</p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -246,117 +250,140 @@ function ProgressTrackerPage() {
         {activeTab === 'topics' && (
           <div>
             <h3 className="text-xl font-semibold mb-4">Progress by Topics</h3>
-            <div className="space-y-4">
-              {mockData.topics.map((topic, index) => (
-                <div key={index} className="border-2 border-border rounded-base p-4 dark:bg-gray-800">
-                  <div className="flex justify-between mb-2">
-                    <h4 className="font-semibold">{topic.name}</h4>
-                    <span className="text-sm">{topic.solved} / {topic.total} solved</span>
-                  </div>
-                  <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
-                    <div 
-                      className="bg-main h-2.5 rounded-full" 
-                      style={{ width: `${(topic.solved / topic.total) * 100}%` }}
-                    ></div>
-                  </div>
-                  <div className="mt-2 text-right text-sm">
-                    {Math.round((topic.solved / topic.total) * 100)}%
-                  </div>
+            {topics.length > 0 ? (
+              <div className="space-y-4">
+                {topics.map((topic: any) => {
+                  // Calculate solved problems for this topic
+                  const topicProblems = problems.filter(p => p.topicId === topic.id);
+                  const topicSolved = userData.solvedProblems?.filter((solvedId: string) => 
+                    topicProblems.some(p => p.id === solvedId)
+                  ).length || 0;
+                  const topicTotal = topicProblems.length;
+                  const percentage = topicTotal > 0 ? Math.round((topicSolved / topicTotal) * 100) : 0;
                   
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <h5 className="text-sm font-medium mb-2">Practice on:</h5>
-                    <div className="flex flex-wrap gap-3">
-                      {topic.platforms.map((platform, pIndex) => (
-                        <a 
-                          key={pIndex}
-                          href={platform.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 px-3 py-2 rounded-base border border-border hover:bg-gray-50 dark:hover:bg-gray-700"
-                        >
-                          <div className="w-6 h-6 flex items-center justify-center">
-                            {platform.name === 'leetcode' && (
+                  return (
+                    <div key={topic.id} className="border-2 border-border rounded-base p-4 dark:bg-gray-800">
+                      <div className="flex justify-between mb-2">
+                        <h4 className="font-semibold">{topic.name}</h4>
+                        <span className="text-sm">{topicSolved} / {topicTotal} solved</span>
+                      </div>
+                      <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2.5">
+                        <div 
+                          className="bg-main h-2.5 rounded-full" 
+                          style={{ width: `${percentage}%` }}
+                        ></div>
+                      </div>
+                      <div className="mt-2 text-right text-sm">
+                        {percentage}%
+                      </div>
+                      
+                      <div className="mt-4 pt-4 border-t border-border">
+                        <h5 className="text-sm font-medium mb-2">Practice on:</h5>
+                        <div className="flex flex-wrap gap-3">
+                          <a 
+                            href="https://leetcode.com/problemset/all/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-3 py-2 rounded-base border border-border hover:bg-gray-50 dark:hover:bg-gray-700"
+                          >
+                            <div className="w-6 h-6 flex items-center justify-center">
                               <img src={leetcodeLogo} alt="LeetCode" className="max-h-full" />
-                            )}
-                            {platform.name === 'codeforces' && (
+                            </div>
+                            <span className="text-sm">LeetCode</span>
+                          </a>
+                          <a 
+                            href="https://codeforces.com/problemset"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-3 py-2 rounded-base border border-border hover:bg-gray-50 dark:hover:bg-gray-700"
+                          >
+                            <div className="w-6 h-6 flex items-center justify-center">
                               <img src={codeforcesLogo} alt="Codeforces" className="max-h-full" />
-                            )}
-                            {platform.name === 'codechef' && (
+                            </div>
+                            <span className="text-sm">Codeforces</span>
+                          </a>
+                          <a 
+                            href="https://www.codechef.com/problems"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-3 py-2 rounded-base border border-border hover:bg-gray-50 dark:hover:bg-gray-700"
+                          >
+                            <div className="w-6 h-6 flex items-center justify-center">
                               <img src={codechefLogo} alt="CodeChef" className="max-h-full" />
-                            )}
-                          </div>
-                          <span className="text-sm">{platform.count} solved</span>
-                        </a>
-                      ))}
+                            </div>
+                            <span className="text-sm">CodeChef</span>
+                          </a>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No topics available yet.</p>
+              </div>
+            )}
           </div>
         )}
         
         {activeTab === 'activity' && (
           <div>
             <h3 className="text-xl font-semibold mb-4">Recent Activity</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b-2 border-border">
-                    <th className="py-2 px-3 text-left">Date</th>
-                    <th className="py-2 px-3 text-left">Platform</th>
-                    <th className="py-2 px-3 text-left">Problem</th>
-                    <th className="py-2 px-3 text-left">Result</th>
-                    <th className="py-2 px-3 text-left">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockData.recentActivity.map(activity => (
-                    <tr key={activity.id} className="border-b border-border">
-                      <td className="py-3 px-3">{activity.date}</td>
-                      <td className="py-3 px-3">
-                        <div className="w-8 h-8 flex items-center justify-center">
-                          {activity.platform === 'leetcode' && (
-                            <img src={leetcodeLogo} alt="LeetCode" className="max-h-full" />
-                          )}
-                          {activity.platform === 'codeforces' && (
-                            <img src={codeforcesLogo} alt="Codeforces" className="max-h-full" />
-                          )}
-                          {activity.platform === 'codechef' && (
-                            <img src={codechefLogo} alt="CodeChef" className="max-h-full" />
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3 px-3">{activity.problem}</td>
-                      <td className="py-3 px-3">
-                        <span className={`px-2 py-1 text-xs rounded-base ${
-                          activity.result === 'Solved' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {activity.result}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="flex space-x-2">
-                          <a 
-                            href={activity.link} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="px-2 py-1 bg-main text-main-foreground text-xs rounded-base hover:opacity-90"
-                          >
-                            Practice
-                          </a>
-                          <button className="px-2 py-1 bg-background border border-border text-xs rounded-base hover:bg-gray-100">
-                            View Notes
-                          </button>
-                        </div>
-                      </td>
+            {submissions.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b-2 border-border">
+                      <th className="py-2 px-3 text-left">Date</th>
+                      <th className="py-2 px-3 text-left">Problem</th>
+                      <th className="py-2 px-3 text-left">Language</th>
+                      <th className="py-2 px-3 text-left">Status</th>
+                      <th className="py-2 px-3 text-left">Time</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {submissions.map((submission: any) => {
+                      const problem = problems.find(p => p.id === submission.problemId);
+                      const submissionDate = new Date(submission.submittedAt);
+                      
+                      return (
+                        <tr key={submission.id} className="border-b border-border">
+                          <td className="py-3 px-3">
+                            {submissionDate.toLocaleDateString()}
+                          </td>
+                          <td className="py-3 px-3">
+                            {problem?.title || 'Unknown Problem'}
+                          </td>
+                          <td className="py-3 px-3 capitalize">
+                            {submission.language}
+                          </td>
+                          <td className="py-3 px-3">
+                            <span className={`px-2 py-1 text-xs rounded-base ${
+                              submission.status === 'ACCEPTED' 
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200' 
+                                : submission.status === 'WRONG_ANSWER'
+                                ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200'
+                                : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200'
+                            }`}>
+                              {submission.status.replace('_', ' ')}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3">
+                            {submission.runtime ? `${submission.runtime}ms` : 'N/A'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No recent activity yet.</p>
+                <p className="text-sm mt-2">Start solving problems to see your activity here!</p>
+              </div>
+            )}
           </div>
         )}
       </div>
