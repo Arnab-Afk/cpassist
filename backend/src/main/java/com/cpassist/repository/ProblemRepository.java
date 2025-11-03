@@ -24,4 +24,6 @@ public interface ProblemRepository extends MongoRepository<Problem, String> {
     long countByTopic(String topic);
     
     long countByTopicAndDifficulty(String topic, String difficulty);
+    
+    java.util.Optional<Problem> findByTitleIgnoreCase(String title);
 }

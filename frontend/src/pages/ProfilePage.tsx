@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, authAPI, userAPI } from '../lib/apiClient';
+import SyncWithPlatforms from '../components/SyncWithPlatforms';
 
 // Badge definitions with requirements
 interface BadgeDefinition {
@@ -583,6 +584,11 @@ function ProfilePage() {
                   >
                     Save Platform Stats
                   </button>
+                </div>
+
+                {/* Sync with Platforms */}
+                <div className="mt-8">
+                  <SyncWithPlatforms />
                 </div>
               </div>
             </div>
