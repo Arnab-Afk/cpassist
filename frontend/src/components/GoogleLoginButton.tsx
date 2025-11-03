@@ -6,23 +6,34 @@ interface GoogleLoginButtonProps {
 }
 
 const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ 
-  callbackUrl = `${window.location.origin}/callback`,
+  callbackUrl,
   onError 
 }) => {
   
   const handleGoogleLogin = () => {
     try {
-      // Backend API URL
+      // Cloudflare Worker URL
+      const workerUrl = 'https://small-mouse-2759.arnabbhowmik019.workers.dev/google/auth';
+      
+      // Backend callback URL - where worker should send the OAuth code
       const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+      const backendCallback = `${backendUrl}/auth/google/callback`;
       
-      // Encode the frontend callback URL
-      const encodedCallbackUrl = encodeURIComponent(callbackUrl);
+      // Frontend callback URL - where user will land with JWT tokens
+      const finalCallbackUrl = callbackUrl || 
+                               import.meta.env.VITE_OAUTH_CALLBACK_URL || 
+                               `${window.location.origin}/auth/callback`;
       
-      // Redirect to backend Google auth endpoint
-      const googleAuthUrl = `${backendUrl}/auth/google/login?redirect_url=${encodedCallbackUrl}`;
+      // Encode the redirect URL with frontend callback embedded
+      const redirectUrl = `${backendCallback}?frontend_redirect=${encodeURIComponent(finalCallbackUrl)}`;
       
-      console.log('Redirecting to:', googleAuthUrl);
-      window.location.href = googleAuthUrl;
+      // Redirect to worker with redirect_url parameter
+      const workerAuthUrl = `${workerUrl}?redirect_url=${encodeURIComponent(redirectUrl)}`;
+      
+      console.log('Frontend Callback:', finalCallbackUrl);
+      console.log('Backend Callback:', backendCallback);
+      console.log('Worker URL:', workerAuthUrl);
+      window.location.href = workerAuthUrl;
       
     } catch (error) {
       console.error('Google login error:', error);
