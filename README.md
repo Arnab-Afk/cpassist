@@ -12,13 +12,22 @@ CPAssist is a modern web application that serves as a complete learning and prac
 - Access problems from multiple competitive programming platforms
 
 ### 🏗️ Architecture & Tech Stack
-- **Frontend Framework**: React 19 with TypeScript for type safety
+
+#### Frontend
+- **Framework**: React 19 with TypeScript for type safety
 - **Styling**: Tailwind CSS with custom design system
 - **Build Tool**: Vite for fast development and builds
 - **UI Components**: Radix UI for accessibility
 - **Routing**: React Router DOM
 - **Icons**: Lucide React
 - **Date Handling**: date-fns
+
+#### Backend
+- **Framework**: Spring Boot 3.2.0 (Java 17)
+- **Database**: MongoDB
+- **Authentication**: JWT (JSON Web Tokens)
+- **Security**: Spring Security
+- **Build Tool**: Maven
 
 ### 🚀 Key Features
 

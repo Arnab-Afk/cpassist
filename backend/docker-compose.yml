@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: cpassist-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: cpassist
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - cpassist-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cpassist-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      MONGODB_URI: mongodb://admin:password@mongodb:27017/cpassist?authSource=admin
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-key-change-this}
+      JWT_EXPIRATION: 86400000
+      JWT_REFRESH_EXPIRATION: 604800000
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:3000}
+    depends_on:
+      - mongodb
+    networks:
+      - cpassist-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  cpassist-network:
+    driver: bridge
