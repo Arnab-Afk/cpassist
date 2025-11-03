@@ -2,13 +2,91 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser, authAPI, userAPI } from '../lib/apiClient';
 
-// Badge definitions
-const BADGE_DEFINITIONS: { [key: string]: { id: string; name: string; icon: string; description: string; requirement: number } } = {
-  first_solve: { id: 'first_solve', name: "First Solve", icon: "🎯", description: "Solved your first problem", requirement: 1 },
-  easy_10: { id: 'easy_10', name: "10 Easy Problems", icon: "⭐", description: "Solved 10 easy problems", requirement: 10 },
-  medium_5: { id: 'medium_5', name: "5 Medium Problems", icon: "🔥", description: "Solved 5 medium problems", requirement: 5 },
-  arrays_master: { id: 'arrays_master', name: "Arrays Master", icon: "🏆", description: "Solved 20 array problems", requirement: 20 }
-};
+// Badge definitions with requirements
+interface BadgeDefinition {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  requirement: number;
+  checkEarned: (userData: any) => boolean;
+  getProgress: (userData: any) => { current: number; total: number };
+}
+
+const ALL_BADGES: BadgeDefinition[] = [
+  {
+    id: 'first_solve',
+    name: "First Solve",
+    icon: "🎯",
+    description: "Solved your first problem",
+    requirement: 1,
+    checkEarned: (userData) => (userData.problemsSolved || 0) >= 1,
+    getProgress: (userData) => ({ current: Math.min(userData.problemsSolved || 0, 1), total: 1 })
+  },
+  {
+    id: 'problem_solver_10',
+    name: "Problem Solver",
+    icon: "⭐",
+    description: "Solved 10 problems",
+    requirement: 10,
+    checkEarned: (userData) => (userData.problemsSolved || 0) >= 10,
+    getProgress: (userData) => ({ current: Math.min(userData.problemsSolved || 0, 10), total: 10 })
+  },
+  {
+    id: 'dedicated_50',
+    name: "Dedicated Coder",
+    icon: "🔥",
+    description: "Solved 50 problems",
+    requirement: 50,
+    checkEarned: (userData) => (userData.problemsSolved || 0) >= 50,
+    getProgress: (userData) => ({ current: Math.min(userData.problemsSolved || 0, 50), total: 50 })
+  },
+  {
+    id: 'century_100',
+    name: "Century",
+    icon: "�",
+    description: "Solved 100 problems",
+    requirement: 100,
+    checkEarned: (userData) => (userData.problemsSolved || 0) >= 100,
+    getProgress: (userData) => ({ current: Math.min(userData.problemsSolved || 0, 100), total: 100 })
+  },
+  {
+    id: 'streak_7',
+    name: "Week Warrior",
+    icon: "🔥",
+    description: "Maintain a 7-day streak",
+    requirement: 7,
+    checkEarned: (userData) => (userData.currentStreak || 0) >= 7,
+    getProgress: (userData) => ({ current: Math.min(userData.currentStreak || 0, 7), total: 7 })
+  },
+  {
+    id: 'streak_30',
+    name: "Monthly Master",
+    icon: "🎊",
+    description: "Maintain a 30-day streak",
+    requirement: 30,
+    checkEarned: (userData) => (userData.currentStreak || 0) >= 30,
+    getProgress: (userData) => ({ current: Math.min(userData.currentStreak || 0, 30), total: 30 })
+  },
+  {
+    id: 'elite_200',
+    name: "Elite Coder",
+    icon: "🏆",
+    description: "Solved 200 problems",
+    requirement: 200,
+    checkEarned: (userData) => (userData.problemsSolved || 0) >= 200,
+    getProgress: (userData) => ({ current: Math.min(userData.problemsSolved || 0, 200), total: 200 })
+  },
+  {
+    id: 'legendary_500',
+    name: "Legendary",
+    icon: "👑",
+    description: "Solved 500 problems",
+    requirement: 500,
+    checkEarned: (userData) => (userData.problemsSolved || 0) >= 500,
+    getProgress: (userData) => ({ current: Math.min(userData.problemsSolved || 0, 500), total: 500 })
+  }
+];
 
 // Calculate rank based on problems solved
 const calculateRank = (problemsSolved: number): string => {
@@ -307,6 +385,59 @@ function ProfilePage() {
                   </div>
                 )}
               </div>
+
+              {/* Platform Statistics */}
+              {(user.platformStats?.leetcodeSolved > 0 || 
+                user.platformStats?.codeforcesRating > 0 || 
+                user.platformStats?.codechefRating > 0 || 
+                user.platformStats?.hackerrankScore > 0) && (
+                <div className="border-2 border-border rounded-base p-6 shadow-[var(--shadow)]">
+                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Platform Statistics
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {user.platformStats?.leetcodeSolved > 0 && (
+                      <div className="p-4 border-2 border-border rounded-base bg-gradient-to-br from-yellow-500/10 to-yellow-500/5">
+                        <div className="text-sm font-medium text-foreground/70">LeetCode</div>
+                        <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                          {user.platformStats.leetcodeSolved}
+                        </div>
+                        <div className="text-xs text-foreground/60">problems</div>
+                      </div>
+                    )}
+                    {user.platformStats?.codeforcesRating > 0 && (
+                      <div className="p-4 border-2 border-border rounded-base bg-gradient-to-br from-blue-500/10 to-blue-500/5">
+                        <div className="text-sm font-medium text-foreground/70">Codeforces</div>
+                        <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                          {user.platformStats.codeforcesRating}
+                        </div>
+                        <div className="text-xs text-foreground/60">rating</div>
+                      </div>
+                    )}
+                    {user.platformStats?.codechefRating > 0 && (
+                      <div className="p-4 border-2 border-border rounded-base bg-gradient-to-br from-amber-500/10 to-amber-500/5">
+                        <div className="text-sm font-medium text-foreground/70">CodeChef</div>
+                        <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                          {user.platformStats.codechefRating}
+                        </div>
+                        <div className="text-xs text-foreground/60">rating</div>
+                      </div>
+                    )}
+                    {user.platformStats?.hackerrankScore > 0 && (
+                      <div className="p-4 border-2 border-border rounded-base bg-gradient-to-br from-green-500/10 to-green-500/5">
+                        <div className="text-sm font-medium text-foreground/70">HackerRank</div>
+                        <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                          {user.platformStats.hackerrankScore}
+                        </div>
+                        <div className="text-xs text-foreground/60">score</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           
@@ -316,44 +447,143 @@ function ProfilePage() {
               
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Theme</h3>
-                  <div className="flex gap-3">
-                    <button className="px-4 py-2 border-2 border-border rounded-base bg-main text-main-foreground">Light</button>
-                    <button className="px-4 py-2 border-2 border-border rounded-base">Dark</button>
-                    <button className="px-4 py-2 border-2 border-border rounded-base">System</button>
+                  <h3 className="text-lg font-semibold mb-3">Preferred Programming Language</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {['Java', 'Python', 'JavaScript', 'C++', 'C', 'Go', 'Rust', 'TypeScript'].map((lang) => (
+                      <button
+                        key={lang}
+                        onClick={async () => {
+                          try {
+                            const updatedProfile = {
+                              ...user.profile,
+                              preferredLanguage: lang.toLowerCase()
+                            };
+                            await userAPI.updateProfile(updatedProfile);
+                            setUser({ ...user, profile: { ...user.profile, preferredLanguage: lang.toLowerCase() } });
+                          } catch (error) {
+                            console.error('Failed to update language preference:', error);
+                          }
+                        }}
+                        className={`px-4 py-2 border-2 border-border rounded-base transition-all ${
+                          user.profile?.preferredLanguage?.toLowerCase() === lang.toLowerCase()
+                            ? 'bg-main text-main-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]'
+                            : 'hover:bg-main/10'
+                        }`}
+                      >
+                        {lang}
+                      </button>
+                    ))}
                   </div>
+                  <p className="text-sm text-foreground/60 mt-2">
+                    Current: <span className="font-semibold text-main capitalize">
+                      {user.profile?.preferredLanguage || 'Not set'}
+                    </span>
+                  </p>
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Notification Settings</h3>
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <input type="checkbox" id="email-notifs" className="mr-2" checked readOnly />
-                      <label htmlFor="email-notifs">Email Notifications</label>
-                    </div>
-                    <div className="flex items-center">
-                      <input type="checkbox" id="daily-reminder" className="mr-2" checked readOnly />
-                      <label htmlFor="daily-reminder">Daily Reminders</label>
-                    </div>
-                    <div className="flex items-center">
-                      <input type="checkbox" id="achievement-notifs" className="mr-2" checked readOnly />
-                      <label htmlFor="achievement-notifs">Achievement Notifications</label>
-                    </div>
-                  </div>
+                  <h3 className="text-lg font-semibold mb-3">Bio</h3>
+                  <textarea
+                    value={user.profile?.bio || ''}
+                    onChange={(e) => setUser({ ...user, profile: { ...user.profile, bio: e.target.value } })}
+                    placeholder="Tell us about yourself..."
+                    className="w-full p-3 border-2 border-border rounded-base bg-background resize-none"
+                    rows={4}
+                  />
+                  <button
+                    onClick={async () => {
+                      try {
+                        const updatedProfile = {
+                          ...user.profile,
+                          bio: user.profile?.bio
+                        };
+                        await userAPI.updateProfile(updatedProfile);
+                        alert('Bio updated successfully!');
+                      } catch (error) {
+                        console.error('Failed to update bio:', error);
+                        alert('Failed to update bio');
+                      }
+                    }}
+                    className="mt-2 px-4 py-2 bg-main text-main-foreground rounded-base hover:translate-y-[-2px] transition-transform"
+                  >
+                    Save Bio
+                  </button>
                 </div>
                 
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">Default Problem View</h3>
-                  <div className="flex gap-3">
-                    <button className="px-4 py-2 border-2 border-border rounded-base bg-main text-main-foreground">All Problems</button>
-                    <button className="px-4 py-2 border-2 border-border rounded-base">Unsolved Only</button>
-                    <button className="px-4 py-2 border-2 border-border rounded-base">Bookmarked</button>
+                <div className="border-t-2 border-border pt-6">
+                  <h3 className="text-lg font-semibold mb-3">Platform Statistics</h3>
+                  <p className="text-sm text-foreground/60 mb-4">
+                    Link your profiles from other coding platforms to show your overall progress
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">LeetCode Problems Solved</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={user.platformStats?.leetcodeSolved || 0}
+                        onChange={(e) => setUser({
+                          ...user,
+                          platformStats: { ...user.platformStats, leetcodeSolved: parseInt(e.target.value) || 0 }
+                        })}
+                        className="w-full p-2 border-2 border-border rounded-base bg-background"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Codeforces Rating</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={user.platformStats?.codeforcesRating || 0}
+                        onChange={(e) => setUser({
+                          ...user,
+                          platformStats: { ...user.platformStats, codeforcesRating: parseInt(e.target.value) || 0 }
+                        })}
+                        className="w-full p-2 border-2 border-border rounded-base bg-background"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">CodeChef Rating</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={user.platformStats?.codechefRating || 0}
+                        onChange={(e) => setUser({
+                          ...user,
+                          platformStats: { ...user.platformStats, codechefRating: parseInt(e.target.value) || 0 }
+                        })}
+                        className="w-full p-2 border-2 border-border rounded-base bg-background"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">HackerRank Score</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={user.platformStats?.hackerrankScore || 0}
+                        onChange={(e) => setUser({
+                          ...user,
+                          platformStats: { ...user.platformStats, hackerrankScore: parseInt(e.target.value) || 0 }
+                        })}
+                        className="w-full p-2 border-2 border-border rounded-base bg-background"
+                      />
+                    </div>
                   </div>
+                  <button
+                    onClick={async () => {
+                      try {
+                        await userAPI.updatePlatformStats(user.platformStats);
+                        alert('Platform stats updated successfully!');
+                      } catch (error) {
+                        console.error('Failed to update platform stats:', error);
+                        alert('Failed to update platform stats');
+                      }
+                    }}
+                    className="mt-4 px-4 py-2 bg-main text-main-foreground rounded-base hover:translate-y-[-2px] transition-transform"
+                  >
+                    Save Platform Stats
+                  </button>
                 </div>
-              </div>
-              
-              <div className="mt-8 text-right">
-                <button className="px-4 py-2 bg-main text-main-foreground rounded-base">Save Preferences</button>
               </div>
             </div>
           )}
@@ -361,23 +591,32 @@ function ProfilePage() {
           {activeSection === 'badges' && (
             <div className="border-2 border-border rounded-base p-6">
               <h2 className="text-2xl font-bold mb-2">Badges & Achievements</h2>
-              <p className="text-foreground/70 mb-6">Collect badges by solving problems and reaching milestones!</p>
+              <p className="text-foreground/70 mb-6">
+                Collect badges by solving problems and reaching milestones! 
+                <span className="font-semibold text-main ml-2">
+                  {ALL_BADGES.filter(b => b.checkEarned(user)).length}/{ALL_BADGES.length} earned
+                </span>
+              </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Earned Badges */}
-                {user.profile?.badges && user.profile.badges.size > 0 ? (
-                  Array.from(user.profile.badges as Set<string>).map((badgeId) => {
-                    const badgeDef = BADGE_DEFINITIONS[badgeId];
-                    if (!badgeDef) return null;
-                    
+                {ALL_BADGES.map((badge) => {
+                  const isEarned = badge.checkEarned(user);
+                  const progress = badge.getProgress(user);
+                  const progressPercent = (progress.current / progress.total) * 100;
+                  
+                  if (isEarned) {
+                    // Earned badge
                     return (
-                      <div key={badgeId} className="border-2 border-border rounded-base p-4 flex items-center gap-4 bg-gradient-to-br from-main/5 to-transparent hover:translate-y-[-2px] transition-transform shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)]">
+                      <div key={badge.id} className="border-2 border-border rounded-base p-4 flex items-center gap-4 bg-gradient-to-br from-main/5 to-transparent hover:translate-y-[-2px] transition-transform shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)]">
                         <div className="w-16 h-16 bg-gradient-to-br from-main to-main/80 text-white rounded-full flex items-center justify-center text-3xl shadow-lg">
-                          {badgeDef.icon}
+                          {badge.icon}
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-bold text-lg">{badgeDef.name}</h3>
-                          <p className="text-sm text-foreground/70">{badgeDef.description}</p>
+                          <h3 className="font-bold text-lg">{badge.name}</h3>
+                          <p className="text-sm text-foreground/70">{badge.description}</p>
+                          <div className="text-xs font-medium text-green-600 dark:text-green-400 mt-1">
+                            ✓ Earned
+                          </div>
                         </div>
                         <div className="text-green-600 dark:text-green-400">
                           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -386,41 +625,36 @@ function ProfilePage() {
                         </div>
                       </div>
                     );
-                  })
-                ) : (
-                  <div className="col-span-2 border-2 border-dashed border-border rounded-base p-8 text-center opacity-60">
-                    <div className="text-5xl mb-3">🏆</div>
-                    <p className="text-lg font-semibold text-foreground/70">No badges earned yet</p>
-                    <p className="text-sm text-foreground/50 mt-2">Start solving problems to earn your first badge!</p>
-                  </div>
-                )}
-                
-                <div className="border-2 border-dashed border-border rounded-base p-4 flex items-center gap-4 opacity-60 hover:opacity-80 transition-opacity">
-                  <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-3xl">
-                    <span className="opacity-50">🎯</span>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-foreground/70">Hard Problem</h3>
-                    <p className="text-sm text-foreground/50">Solve your first hard problem</p>
-                    <div className="mt-1 text-xs font-medium text-main">🔒 Locked</div>
-                  </div>
-                </div>
-                
-                <div className="border-2 border-dashed border-border rounded-base p-4 flex items-center gap-4 opacity-60 hover:opacity-80 transition-opacity">
-                  <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-3xl">
-                    <span className="opacity-50">🎊</span>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-foreground/70">30-Day Streak</h3>
-                    <p className="text-sm text-foreground/50">Maintain a 30-day solving streak</p>
-                    <div className="mt-1">
-                      <div className="text-xs font-medium text-foreground/70 mb-1">Progress: 7/30 days</div>
-                      <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden border border-border">
-                        <div className="h-full bg-main transition-all" style={{ width: '23%' }}></div>
+                  } else {
+                    // Locked badge with progress
+                    return (
+                      <div key={badge.id} className="border-2 border-dashed border-border rounded-base p-4 flex items-center gap-4 opacity-60 hover:opacity-80 transition-opacity">
+                        <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-3xl">
+                          <span className="opacity-50">{badge.icon}</span>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-lg text-foreground/70">{badge.name}</h3>
+                          <p className="text-sm text-foreground/50">{badge.description}</p>
+                          {progressPercent > 0 ? (
+                            <div className="mt-2">
+                              <div className="text-xs font-medium text-foreground/70 mb-1">
+                                Progress: {progress.current}/{progress.total}
+                              </div>
+                              <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden border border-border">
+                                <div 
+                                  className="h-full bg-main transition-all" 
+                                  style={{ width: `${progressPercent}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="mt-1 text-xs font-medium text-main">🔒 Locked</div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
+                    );
+                  }
+                })}
               </div>
             </div>
           )}
