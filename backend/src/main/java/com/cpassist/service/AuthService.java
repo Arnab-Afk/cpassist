@@ -120,8 +120,8 @@ public class AuthService {
                     newUser.setEmail(googleUserInfo.getEmail());
                     newUser.setFullName(googleUserInfo.getName());
                     
-                    // Generate username from email
-                    String username = googleUserInfo.getEmail().split("@")[0] + "_" + UUID.randomUUID().toString().substring(0, 8);
+                    // Generate a clean username from email or name
+                    String username = generateUsernameFromGoogleInfo(googleUserInfo);
                     newUser.setUsername(username);
                     
                     // Set random password (user won't use it for Google login)
@@ -155,5 +155,57 @@ public class AuthService {
         String refreshToken = tokenProvider.generateRefreshToken(user.getUsername());
         
         return new JwtResponse(accessToken, refreshToken, user.getUsername(), user.getEmail());
+    }
+    
+    /**
+     * Generate a clean username from Google user info
+     * Priority: 1) email prefix, 2) name lowercase, 3) email with number
+     * Ensures uniqueness by appending numbers if needed
+     */
+    private String generateUsernameFromGoogleInfo(GoogleUserInfo googleUserInfo) {
+        String baseUsername = null;
+        
+        // Try to get username from email prefix (before @)
+        if (googleUserInfo.getEmail() != null && !googleUserInfo.getEmail().isEmpty()) {
+            String emailPrefix = googleUserInfo.getEmail().split("@")[0];
+            // Clean the username: remove dots, hyphens, underscores and convert to lowercase
+            baseUsername = emailPrefix.replaceAll("[.\\-_]", "").toLowerCase();
+        }
+        
+        // If email prefix is empty or too short, use name
+        if (baseUsername == null || baseUsername.length() < 3) {
+            if (googleUserInfo.getName() != null && !googleUserInfo.getName().isEmpty()) {
+                // Remove spaces and special characters, convert to lowercase
+                baseUsername = googleUserInfo.getName()
+                        .replaceAll("[^a-zA-Z0-9]", "")
+                        .toLowerCase();
+            }
+        }
+        
+        // Fallback to a default if still empty
+        if (baseUsername == null || baseUsername.isEmpty()) {
+            baseUsername = "user";
+        }
+        
+        // Ensure username is not too long (max 20 characters)
+        if (baseUsername.length() > 20) {
+            baseUsername = baseUsername.substring(0, 20);
+        }
+        
+        // Check if username exists, if yes, append a number
+        String finalUsername = baseUsername;
+        int counter = 1;
+        while (userRepository.existsByUsername(finalUsername)) {
+            finalUsername = baseUsername + counter;
+            counter++;
+            
+            // Safety check: if counter gets too high, add random suffix
+            if (counter > 999) {
+                finalUsername = baseUsername + (int)(Math.random() * 10000);
+                break;
+            }
+        }
+        
+        return finalUsername;
     }
 }

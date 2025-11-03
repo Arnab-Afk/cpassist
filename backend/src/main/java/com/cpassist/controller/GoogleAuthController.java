@@ -44,40 +44,59 @@ public class GoogleAuthController {
     }
 
     /**
-     * Google redirects to this endpoint after user consent
-     * This is the Cloudflare Worker URL: small-mouse-2759.arnabbhowmik019.workers.dev/google/auth
-     * The worker will forward the code to this endpoint and redirect user to frontend with token
+     * Cloudflare Worker forwards the OAuth callback here
+     * Handles both: OAuth code from Google OR access_token from worker
      */
     @GetMapping("/callback")
     public RedirectView googleCallback(
-            @RequestParam("code") String code,
-            @RequestParam("state") String frontendRedirectUrl) {
+            @RequestParam(value = "code", required = false) String code,
+            @RequestParam(value = "access_token", required = false) String accessToken,
+            @RequestParam(value = "frontend_redirect", required = false) String frontendRedirectUrl,
+            @RequestParam(value = "state", required = false) String state) {
+        
+        // Use frontend_redirect parameter, fallback to state, or use default
+        String redirectUrl = frontendRedirectUrl;
+        if (redirectUrl == null || redirectUrl.isEmpty()) {
+            redirectUrl = state;
+        }
+        if (redirectUrl == null || redirectUrl.isEmpty()) {
+            redirectUrl = "http://localhost:5173/auth/callback";
+        }
         
         try {
-            // Exchange authorization code for access token
-            GoogleTokenResponse tokenResponse = googleOAuthService.exchangeAuthorizationCode(code);
-            String accessToken = tokenResponse.getAccessToken();
+            // If we have an access_token directly (from worker), use it
+            // Otherwise, exchange the code for an access_token
+            String googleAccessToken = accessToken;
+            
+            if (googleAccessToken == null || googleAccessToken.isEmpty()) {
+                if (code == null || code.isEmpty()) {
+                    throw new IllegalArgumentException("Either 'code' or 'access_token' parameter is required");
+                }
+                // Exchange authorization code for access token
+                GoogleTokenResponse tokenResponse = googleOAuthService.exchangeAuthorizationCode(code);
+                googleAccessToken = tokenResponse.getAccessToken();
+            }
 
             // Get user info from Google
-            GoogleUserInfo userInfo = getUserInfoFromGoogle(accessToken);
+            GoogleUserInfo userInfo = getUserInfoFromGoogle(googleAccessToken);
 
             // Authenticate or create user in our system
             JwtResponse jwtResponse = authService.authenticateWithGoogle(userInfo);
 
             // Redirect to frontend with JWT tokens
-            String redirectUrl = frontendRedirectUrl + 
+            String finalRedirectUrl = redirectUrl + 
                     "?access_token=" + URLEncoder.encode(jwtResponse.getAccessToken(), StandardCharsets.UTF_8) +
                     "&refresh_token=" + URLEncoder.encode(jwtResponse.getRefreshToken(), StandardCharsets.UTF_8) +
                     "&username=" + URLEncoder.encode(jwtResponse.getUsername(), StandardCharsets.UTF_8) +
                     "&email=" + URLEncoder.encode(jwtResponse.getEmail(), StandardCharsets.UTF_8);
 
             RedirectView redirectView = new RedirectView();
-            redirectView.setUrl(redirectUrl);
+            redirectView.setUrl(finalRedirectUrl);
             return redirectView;
 
         } catch (Exception e) {
             // Redirect to frontend with error
-            String errorUrl = frontendRedirectUrl + "?error=" + URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
+            String errorUrl = redirectUrl + "?error=" + URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
             RedirectView redirectView = new RedirectView();
             redirectView.setUrl(errorUrl);
             return redirectView;
