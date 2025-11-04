@@ -13,6 +13,15 @@ import SignupPage from './pages/SignupPage';
 import AuthCallback from './pages/AuthCallback';
 import BackgroundSquares from './components/BackgroundSquares';
 
+// Import admin pages
+import { 
+  AdminDashboard, 
+  ManageUsers, 
+  ManageProblems, 
+  ManageTopics, 
+  ViewSubmissions 
+} from './pages/admin';
+
 // Import navigation menu and theme components
 import MainNavigationMenu from './components/NavigationMenu';
 import MobileMenu from './components/MobileMenu';
@@ -89,6 +98,13 @@ function App() {
                 <Route path="/progress/add" element={<AddProgressPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
+                
+                {/* Admin Routes */}
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/users" element={<ManageUsers />} />
+                <Route path="/admin/problems" element={<ManageProblems />} />
+                <Route path="/admin/topics" element={<ManageTopics />} />
+                <Route path="/admin/submissions" element={<ViewSubmissions />} />
               </Routes>
             </main>
           
