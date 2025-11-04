@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CPAssist Extension</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      width: 350px;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .logo {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    
+    h1 {
+      font-size: 20px;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+    
+    .subtitle {
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .status {
+      padding: 12px;
+      border-radius: 8px;
+      margin: 15px 0;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .status.connected {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status.disconnected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #374151;
+    }
+    
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    button:hover {
+      background: #5568d3;
+    }
+    
+    button:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+    }
+    
+    .stats {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid #f3f4f6;
+    }
+    
+    .stat-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 13px;
+    }
+    
+    .stat-label {
+      color: #6b7280;
+    }
+    
+    .stat-value {
+      font-weight: 600;
+      color: #667eea;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    
+    .footer a {
+      color: #667eea;
+      text-decoration: none;
+    }
+    
+    .message {
+      padding: 10px;
+      border-radius: 6px;
+      margin: 10px 0;
+      font-size: 12px;
+    }
+    
+    .message.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .message.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .platforms {
+      margin-top: 15px;
+    }
+    
+    .platform-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      border: 2px solid #e5e7eb;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    
+    .platform-name {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    
+    .platform-status {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: #d1fae5;
+      color: #065f46;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">🎯</div>
+      <h1>CPAssist Extension</h1>
+      <p class="subtitle">Automatic Progress Tracking</p>
+    </div>
+    
+    <div id="status" class="status disconnected">
+      Not Connected
+    </div>
+    
+    <div id="loginForm">
+      <div class="form-group">
+        <label for="authToken">CPAssist Auth Token</label>
+        <input 
+          type="text" 
+          id="authToken" 
+          placeholder="Paste your JWT token here (starts with eyJ...)"
+          style="font-family: monospace; font-size: 11px;"
+        >
+        <small style="color: #6b7280; font-size: 11px; display: block; margin-top: 5px;">
+          ℹ️ Get token from Profile → Preferences → Copy Token button
+        </small>
+      </div>
+      
+      <div class="form-group">
+        <label for="backendUrl">Backend URL</label>
+        <input 
+          type="text" 
+          id="backendUrl" 
+          value="http://localhost:8080"
+          placeholder="http://localhost:8080"
+        >
+      </div>
+      
+      <button id="saveBtn">Save & Connect</button>
+    </div>
+    
+    <div id="message"></div>
+    
+    <div class="platforms">
+      <h3 style="font-size: 14px; margin-bottom: 10px; color: #374151;">Supported Platforms</h3>
+      <div class="platform-item">
+        <span class="platform-name">LeetCode</span>
+        <span class="platform-status">✓ Active</span>
+      </div>
+      <div class="platform-item">
+        <span class="platform-name">Codeforces</span>
+        <span class="platform-status">✓ Active</span>
+      </div>
+      <div class="platform-item">
+        <span class="platform-name">CodeChef</span>
+        <span class="platform-status">✓ Active</span>
+      </div>
+    </div>
+    
+    <div class="stats" id="stats" style="display: none;">
+      <h3 style="font-size: 14px; margin-bottom: 10px; color: #374151;">Today's Progress</h3>
+      <div class="stat-item">
+        <span class="stat-label">Problems Synced</span>
+        <span class="stat-value" id="syncedCount">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Last Sync</span>
+        <span class="stat-value" id="lastSync">Never</span>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>Get your token from <a href="http://localhost:3000/profile" target="_blank">CPAssist Profile</a></p>
+      <p style="margin-top: 5px;">v1.0.0 • <a href="https://github.com/Arnab-Afk/cpassist" target="_blank">GitHub</a></p>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

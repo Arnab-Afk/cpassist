@@ -29,7 +29,7 @@ google:
     redirect-uri: ${GOOGLE_REDIRECT_URI:https://small-mouse-2759.arnabbhowmik019.workers.dev/google/auth}
 
 cors:
-  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000,chrome-extension://*, moz-extension://*}
   allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
   allowed-headers: "*"
   allow-credentials: true

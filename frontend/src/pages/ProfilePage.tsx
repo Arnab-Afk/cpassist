@@ -105,6 +105,7 @@ function ProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tokenCopied, setTokenCopied] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -447,6 +448,165 @@ function ProfilePage() {
               <h2 className="text-2xl font-bold mb-6">Preferences</h2>
               
               <div className="space-y-6">
+                {/* Browser Extension Token */}
+                <div className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-2 border-purple-200 dark:border-purple-800 rounded-base p-5">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="text-3xl">🔌</div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100 mb-1">
+                        Browser Extension Setup
+                      </h3>
+                      <p className="text-sm text-purple-700 dark:text-purple-300">
+                        Copy your authentication token to configure the CPAssist browser extension
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white dark:bg-gray-800 border-2 border-purple-300 dark:border-purple-700 rounded-base p-3 mb-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">JWT TOKEN PREVIEW</span>
+                      <div className="flex-1 h-px bg-purple-200 dark:bg-purple-700"></div>
+                    </div>
+                    {(() => {
+                      const token = localStorage.getItem('access_token');
+                      const isValidFormat = token && token.split('.').length === 3;
+                      
+                      if (!token) {
+                        return (
+                          <div className="text-xs text-red-600 dark:text-red-400">
+                            ⚠️ No token found. Please log in again.
+                          </div>
+                        );
+                      }
+                      
+                      if (!isValidFormat) {
+                        return (
+                          <div className="text-xs text-red-600 dark:text-red-400">
+                            ⚠️ Invalid token format. Please log in again.
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <div>
+                          <code className="text-xs text-gray-600 dark:text-gray-400 break-all font-mono block mb-1">
+                            {token.substring(0, 60)}...
+                          </code>
+                          <div className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                            <span>✓</span>
+                            <span>Valid JWT format ({token.length} characters)</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                  
+                  <button
+                    onClick={async () => {
+                      const token = localStorage.getItem('access_token');
+                      
+                      // Validate token
+                      if (!token) {
+                        alert('No token found. Please log in again.');
+                        return;
+                      }
+                      
+                      const tokenParts = token.split('.');
+                      if (tokenParts.length !== 3) {
+                        alert('Invalid token format. Please log in again to get a fresh token.');
+                        return;
+                      }
+                      
+                      // Check if token looks like JWT (starts with eyJ)
+                      if (!token.startsWith('eyJ')) {
+                        alert('Token format incorrect. JWT tokens should start with "eyJ". Please log in again.');
+                        return;
+                      }
+                      
+                      try {
+                        await navigator.clipboard.writeText(token);
+                        setTokenCopied(true);
+                        console.log('Token copied successfully! Length:', token.length);
+                        console.log('Token starts with:', token.substring(0, 20));
+                        setTimeout(() => setTokenCopied(false), 2000);
+                      } catch (err) {
+                        console.error('Failed to copy token:', err);
+                        // Fallback: create temporary textarea
+                        const textarea = document.createElement('textarea');
+                        textarea.value = token;
+                        textarea.style.position = 'fixed';
+                        textarea.style.opacity = '0';
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        setTokenCopied(true);
+                        console.log('Token copied via fallback method');
+                        setTimeout(() => setTokenCopied(false), 2000);
+                      }
+                    }}
+                    disabled={!localStorage.getItem('access_token') || localStorage.getItem('access_token')?.split('.').length !== 3}
+                    className={`w-full px-4 py-3 ${
+                      !localStorage.getItem('access_token') || localStorage.getItem('access_token')?.split('.').length !== 3
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : tokenCopied 
+                          ? 'bg-green-600' 
+                          : 'bg-purple-600 hover:bg-purple-700'
+                    } text-white font-semibold rounded-base transition-all hover:translate-y-[-2px] shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)] disabled:hover:translate-y-0`}
+                  >
+                    {tokenCopied ? '✓ Copied!' : '📋 Copy Token for Extension'}
+                  </button>
+                  
+                  {(() => {
+                    const token = localStorage.getItem('access_token');
+                    const isValid = token && token.split('.').length === 3 && token.startsWith('eyJ');
+                    
+                    if (!isValid) {
+                      return (
+                        <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-base">
+                          <p className="text-xs text-red-700 dark:text-red-300 font-semibold mb-2 flex items-center gap-1">
+                            <span>⚠️</span>
+                            <span>Invalid or Missing Token</span>
+                          </p>
+                          <p className="text-xs text-red-600 dark:text-red-400 mb-2">
+                            Your token is invalid or expired. Please log out and log in again to get a fresh token.
+                          </p>
+                          <button
+                            onClick={() => {
+                              localStorage.clear();
+                              window.location.href = '/login';
+                            }}
+                            className="text-xs px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-base"
+                          >
+                            Log Out & Re-Login
+                          </button>
+                        </div>
+                      );
+                    }
+                    
+                    return (
+                      <div className="mt-3 text-xs text-purple-600 dark:text-purple-400 space-y-1">
+                        <p className="flex items-center gap-1">
+                          <span>💡</span>
+                          <span>Install the extension from <code className="px-1 bg-purple-100 dark:bg-purple-900 rounded">browser-extension</code> folder</span>
+                        </p>
+                        <p className="flex items-center gap-1">
+                          <span>📋</span>
+                          <span>Paste the copied token directly into the extension (visible as plain text)</span>
+                        </p>
+                        <p className="flex items-center gap-1">
+                          <span>🔒</span>
+                          <span>Token is stored securely and expires in 24 hours</span>
+                        </p>
+                        <p className="flex items-center gap-1">
+                          <span>✓</span>
+                          <span>Valid token ready to copy!</span>
+                        </p>
+                      </div>
+                    );
+                  })()}
+                </div>
+
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Preferred Programming Language</h3>
                   <div className="flex flex-wrap gap-3">

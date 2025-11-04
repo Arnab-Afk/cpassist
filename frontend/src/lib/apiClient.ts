@@ -218,4 +218,43 @@ export const problemsAPI = {
   },
 };
 
+// Submissions API functions
+export const submissionsAPI = {
+  // Create submission
+  create: async (submission: any) => {
+    const response = await apiClient.post('/submissions', submission);
+    return response.data;
+  },
+
+  // Get user submissions
+  getUserSubmissions: async (params?: { page?: number; size?: number }) => {
+    const response = await apiClient.get('/submissions/user', { params });
+    return response.data;
+  },
+
+  // Get submission by ID
+  getById: async (id: string) => {
+    const response = await apiClient.get(`/submissions/${id}`);
+    return response.data;
+  },
+
+  // Get submissions for a specific problem
+  getProblemSubmissions: async (problemId: string, params?: { page?: number; size?: number }) => {
+    const response = await apiClient.get(`/submissions/problem/${problemId}`, { params });
+    return response.data;
+  },
+
+  // Get user's accepted submissions
+  getAccepted: async () => {
+    const response = await apiClient.get('/submissions/user/accepted');
+    return response.data;
+  },
+
+  // Get user's accepted count
+  getAcceptedCount: async () => {
+    const response = await apiClient.get('/submissions/user/accepted/count');
+    return response.data;
+  },
+};
+
 export default apiClient;

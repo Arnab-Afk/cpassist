@@ -108,7 +108,16 @@ function ProgressTrackerPage() {
   
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Progress Tracker</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Progress Tracker</h1>
+        <button
+          onClick={() => navigate('/progress/add')}
+          className="px-4 py-2 rounded-base border-2 border-border bg-main text-main-foreground font-medium hover:translate-y-[-1px] transition-transform flex items-center gap-2"
+        >
+          <span className="text-xl">➕</span>
+          Add Progress
+        </button>
+      </div>
       
       <div className="border-2 border-border rounded-base p-4 mb-6 dark:bg-gray-800">
         <div className="flex flex-wrap gap-2 mb-6">

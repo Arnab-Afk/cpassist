@@ -59,7 +59,7 @@ const AuthCallback: React.FC = () => {
         
         // Redirect to dashboard or home after successful authentication
         setTimeout(() => {
-          navigate('/dashboard');
+          navigate('/profile');
         }, 1500);
 
       } catch (err) {

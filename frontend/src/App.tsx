@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage';
 import TopicsPage from './pages/TopicsPage';
 import QuestionsPage from './pages/QuestionsPage';
 import ProgressTrackerPage from './pages/ProgressTrackerPage';
+import AddProgressPage from './pages/AddProgressPage';
 import ProfilePage from './pages/ProfilePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -85,6 +86,7 @@ function App() {
                 <Route path="/questions" element={<QuestionsPage />} />
                 <Route path="/questions/:difficulty" element={<QuestionsPage />} />
                 <Route path="/progress" element={<ProgressTrackerPage />} />
+                <Route path="/progress/add" element={<AddProgressPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
               </Routes>
