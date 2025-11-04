@@ -24,22 +24,30 @@ public class SyncController {
     @PostMapping("/leetcode")
     public ResponseEntity<?> syncLeetCodeProgress(@RequestBody Map<String, String> request) {
         String userId = getCurrentUserId();
-        String leetcodeUsername = request.get("leetcodeUsername");
+        // Support both 'username' and 'leetcodeUsername' for backward compatibility
+        String leetcodeUsername = request.get("username");
+        if (leetcodeUsername == null) {
+            leetcodeUsername = request.get("leetcodeUsername");
+        }
         
-        if (leetcodeUsername == null || leetcodeUsername.isEmpty()) {
+        if (leetcodeUsername == null || leetcodeUsername.trim().isEmpty()) {
             return ResponseEntity.badRequest()
-                .body(new MessageResponse("LeetCode username is required"));
+                .body(Map.of("message", "LeetCode username is required"));
         }
         
         try {
             int syncedProblems = leetCodeSyncService.syncUserProgress(userId, leetcodeUsername);
             return ResponseEntity.ok(Map.of(
+                "success", true,
                 "message", "Successfully synced with LeetCode",
-                "syncedProblems", syncedProblems
+                "problemsSynced", syncedProblems
             ));
         } catch (Exception e) {
             return ResponseEntity.status(500)
-                .body(new MessageResponse("Failed to sync with LeetCode: " + e.getMessage()));
+                .body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+                ));
         }
     }
     

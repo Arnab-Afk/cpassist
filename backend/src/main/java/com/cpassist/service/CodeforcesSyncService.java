@@ -42,15 +42,16 @@ public class CodeforcesSyncService {
      * Sync user's accepted submissions from Codeforces
      * API: https://codeforces.com/api/user.status?handle={handle}&from=1&count={count}
      */
-    public Map<String, Object> syncUserSubmissions(String username, String codeforcesHandle) {
+    public Map<String, Object> syncUserSubmissions(String usernameOrId, String codeforcesHandle) {
         Map<String, Object> result = new HashMap<>();
         
         try {
-            // Find user
-            User user = userRepository.findByUsername(username)
+            // Find user - try by ID first, then by username
+            User user = userRepository.findById(usernameOrId)
+                .or(() -> userRepository.findByUsername(usernameOrId))
                 .orElseThrow(() -> new RuntimeException("User not found"));
             
-            logger.info("Starting Codeforces sync for user: {} with handle: {}", username, codeforcesHandle);
+            logger.info("Starting Codeforces sync for user: {} with handle: {}", user.getUsername(), codeforcesHandle);
             
             // Fetch user's submissions from Codeforces API
             String apiUrl = String.format("%s/user.status?handle=%s&from=1&count=1000", 
