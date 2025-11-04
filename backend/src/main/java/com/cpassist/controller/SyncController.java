@@ -1,6 +1,7 @@
 package com.cpassist.controller;
 
 import com.cpassist.dto.MessageResponse;
+import com.cpassist.service.CodeforcesSyncService;
 import com.cpassist.service.LeetCodeSyncService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,9 @@ public class SyncController {
     
     @Autowired
     private LeetCodeSyncService leetCodeSyncService;
+    
+    @Autowired
+    private CodeforcesSyncService codeforcesSyncService;
     
     @PostMapping("/leetcode")
     public ResponseEntity<?> syncLeetCodeProgress(@RequestBody Map<String, String> request) {
@@ -41,8 +45,24 @@ public class SyncController {
     
     @PostMapping("/codeforces")
     public ResponseEntity<?> syncCodeforcesProgress(@RequestBody Map<String, String> request) {
-        // TODO: Implement Codeforces sync
-        return ResponseEntity.ok(new MessageResponse("Codeforces sync coming soon!"));
+        String username = getCurrentUserId();
+        String codeforcesHandle = request.get("username");
+        
+        if (codeforcesHandle == null || codeforcesHandle.trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("message", "Codeforces handle is required"));
+        }
+        
+        try {
+            Map<String, Object> result = codeforcesSyncService.syncUserSubmissions(username, codeforcesHandle);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                .body(Map.of(
+                    "success", false,
+                    "message", "Failed to sync with Codeforces: " + e.getMessage()
+                ));
+        }
     }
     
     @PostMapping("/codechef")

@@ -3,30 +3,46 @@ import apiClient from '../lib/apiClient';
 
 export default function SyncWithPlatforms() {
   const [leetcodeUsername, setLeetcodeUsername] = useState('');
+  const [codeforcesUsername, setCodeforcesUsername] = useState('');
+  const [codechefUsername, setCodechefUsername] = useState('');
   const [loading, setLoading] = useState(false);
+  const [syncingPlatform, setSyncingPlatform] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const handleSync = async (platform: 'leetcode' | 'codeforces' | 'codechef') => {
-    if (platform === 'leetcode' && !leetcodeUsername.trim()) {
-      setMessage({ type: 'error', text: 'Please enter your LeetCode username' });
+    let username = '';
+    
+    if (platform === 'leetcode') {
+      username = leetcodeUsername.trim();
+    } else if (platform === 'codeforces') {
+      username = codeforcesUsername.trim();
+    } else if (platform === 'codechef') {
+      username = codechefUsername.trim();
+    }
+
+    if (!username) {
+      setMessage({ type: 'error', text: `Please enter your ${platform} username` });
       return;
     }
 
     setLoading(true);
+    setSyncingPlatform(platform);
     setMessage(null);
 
     try {
       const response = await apiClient.post(`/sync/${platform}`, {
-        [`${platform}Username`]: leetcodeUsername
+        username: username
       });
 
       setMessage({
         type: 'success',
-        text: response.data.message || `Successfully synced with ${platform}!`
+        text: response.data.message || `Successfully synced ${response.data.problemsSynced || 0} problems from ${platform}!`
       });
 
       // Clear input
-      setLeetcodeUsername('');
+      if (platform === 'leetcode') setLeetcodeUsername('');
+      if (platform === 'codeforces') setCodeforcesUsername('');
+      if (platform === 'codechef') setCodechefUsername('');
 
       // Reload page after 2 seconds to show updated progress
       setTimeout(() => {
@@ -36,10 +52,11 @@ export default function SyncWithPlatforms() {
     } catch (error: any) {
       setMessage({
         type: 'error',
-        text: error.response?.data?.message || `Failed to sync with ${platform}`
+        text: error.response?.data?.message || `Failed to sync with ${platform}. Please check the username and try again.`
       });
     } finally {
       setLoading(false);
+      setSyncingPlatform(null);
     }
   };
 
@@ -89,16 +106,58 @@ export default function SyncWithPlatforms() {
         </p>
       </div>
 
-      {/* Coming Soon Platforms */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between p-3 border border-border rounded-base opacity-60">
-          <span className="font-medium">Codeforces</span>
-          <span className="text-sm text-muted-foreground">Coming Soon</span>
+      {/* Codeforces Sync */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2">
+          Codeforces Handle
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={codeforcesUsername}
+            onChange={(e) => setCodeforcesUsername(e.target.value)}
+            placeholder="Enter your Codeforces handle"
+            className="flex-1 px-3 py-2 border-2 border-border rounded-base focus:outline-none focus:ring-2 focus:ring-main dark:bg-gray-700"
+            disabled={loading}
+          />
+          <button
+            onClick={() => handleSync('codeforces')}
+            disabled={loading || !codeforcesUsername.trim()}
+            className="px-4 py-2 bg-main text-main-foreground rounded-base hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading && syncingPlatform === 'codeforces' ? 'Syncing...' : 'Sync Codeforces'}
+          </button>
         </div>
-        <div className="flex items-center justify-between p-3 border border-border rounded-base opacity-60">
-          <span className="font-medium">CodeChef</span>
-          <span className="text-sm text-muted-foreground">Coming Soon</span>
+        <p className="text-xs text-muted-foreground mt-1">
+          ✅ Syncs all your accepted (OK verdict) submissions from Codeforces
+        </p>
+      </div>
+
+      {/* CodeChef Sync */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2">
+          CodeChef Username
+        </label>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={codechefUsername}
+            onChange={(e) => setCodechefUsername(e.target.value)}
+            placeholder="Enter your CodeChef username"
+            className="flex-1 px-3 py-2 border-2 border-border rounded-base focus:outline-none focus:ring-2 focus:ring-main dark:bg-gray-700"
+            disabled={loading}
+          />
+          <button
+            onClick={() => handleSync('codechef')}
+            disabled={loading || !codechefUsername.trim()}
+            className="px-4 py-2 bg-main text-main-foreground rounded-base hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading && syncingPlatform === 'codechef' ? 'Syncing...' : 'Sync CodeChef'}
+          </button>
         </div>
+        <p className="text-xs text-muted-foreground mt-1">
+          ⏳ Coming soon - CodeChef API integration in progress
+        </p>
       </div>
 
       <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-base">
