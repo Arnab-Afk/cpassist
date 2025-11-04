@@ -257,4 +257,67 @@ export const submissionsAPI = {
   },
 };
 
+// Admin API functions
+export const adminAPI = {
+  // Dashboard stats
+  getStats: async () => {
+    const response = await apiClient.get('/admin/stats');
+    return response.data;
+  },
+
+  // Users management
+  users: {
+    getAll: async () => {
+      const response = await apiClient.get('/admin/users');
+      return response.data;
+    },
+    
+    toggleEnabled: async (userId: string, enabled: boolean) => {
+      const response = await apiClient.patch(`/admin/users/${userId}/toggle`, { enabled });
+      return response.data;
+    },
+    
+    updateRoles: async (userId: string, roles: string[]) => {
+      const response = await apiClient.patch(`/admin/users/${userId}/roles`, { roles });
+      return response.data;
+    },
+    
+    delete: async (userId: string) => {
+      const response = await apiClient.delete(`/admin/users/${userId}`);
+      return response.data;
+    },
+  },
+
+  // Topics management
+  topics: {
+    create: async (topic: any) => {
+      const response = await apiClient.post('/admin/topics', topic);
+      return response.data;
+    },
+    
+    update: async (topicId: string, topic: any) => {
+      const response = await apiClient.put(`/admin/topics/${topicId}`, topic);
+      return response.data;
+    },
+    
+    delete: async (topicId: string) => {
+      const response = await apiClient.delete(`/admin/topics/${topicId}`);
+      return response.data;
+    },
+  },
+
+  // Submissions monitoring
+  submissions: {
+    getAll: async () => {
+      const response = await apiClient.get('/admin/submissions');
+      return response.data;
+    },
+    
+    getById: async (submissionId: string) => {
+      const response = await apiClient.get(`/admin/submissions/${submissionId}`);
+      return response.data;
+    },
+  },
+};
+
 export default apiClient;

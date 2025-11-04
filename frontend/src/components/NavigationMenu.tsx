@@ -127,6 +127,15 @@ export default function MainNavigationMenu() {
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
+          
+          {/* Admin link - TODO: Add role check */}
+          <NavigationMenuItem>
+            <Link to="/admin">
+              <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "bg-purple-500/10 border border-purple-500 hover:bg-purple-500/20")}>
+                ⚙️ Admin
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
 

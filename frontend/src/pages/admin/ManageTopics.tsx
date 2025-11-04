@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { adminAPI } from '../../lib/apiClient';
 import apiClient from '../../lib/apiClient';
 
 interface Topic {
@@ -27,17 +28,12 @@ function ManageTopics() {
   const fetchTopics = async () => {
     try {
       const response = await apiClient.get('/topics');
-      setTopics(response.data);
+      const data = Array.isArray(response.data) ? response.data : response.data.content || [];
+      setTopics(data);
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch topics:', error);
-      // Mock data for development
-      setTopics([
-        { id: '1', name: 'Arrays', description: 'Array manipulation and traversal', icon: '📊', problemCount: 45, color: 'blue' },
-        { id: '2', name: 'Strings', description: 'String processing and pattern matching', icon: '📝', problemCount: 38, color: 'green' },
-        { id: '3', name: 'Dynamic Programming', description: 'Optimization and memoization', icon: '🔄', problemCount: 52, color: 'purple' },
-        { id: '4', name: 'Trees', description: 'Binary trees and tree traversal', icon: '🌳', problemCount: 41, color: 'orange' },
-      ]);
+      setTopics([]);
       setLoading(false);
     }
   };
@@ -66,9 +62,9 @@ function ManageTopics() {
 
     try {
       if (selectedTopic.id) {
-        await apiClient.put(`/admin/topics/${selectedTopic.id}`, selectedTopic);
+        await adminAPI.topics.update(selectedTopic.id, selectedTopic);
       } else {
-        await apiClient.post('/admin/topics', selectedTopic);
+        await adminAPI.topics.create(selectedTopic);
       }
       fetchTopics();
       setShowModal(false);
@@ -86,7 +82,7 @@ function ManageTopics() {
     }
 
     try {
-      await apiClient.delete(`/admin/topics/${topicId}`);
+      await adminAPI.topics.delete(topicId);
       fetchTopics();
     } catch (error) {
       console.error('Failed to delete topic:', error);
@@ -94,7 +90,7 @@ function ManageTopics() {
     }
   };
 
-  const filteredTopics = topics.filter(topic =>
+  const filteredTopics = topics.filter((topic: Topic) =>
     topic.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     topic.description.toLowerCase().includes(searchTerm.toLowerCase())
   );

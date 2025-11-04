@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../../lib/apiClient';
+import { adminAPI } from '../../lib/apiClient';
 
 interface Submission {
   id: string;
@@ -31,43 +31,17 @@ function ViewSubmissions() {
 
   const fetchSubmissions = async () => {
     try {
-      const response = await apiClient.get('/admin/submissions');
-      setSubmissions(response.data);
+      const data = await adminAPI.submissions.getAll();
+      setSubmissions(Array.isArray(data) ? data : []);
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch submissions:', error);
-      // Mock data for development
-      setSubmissions([
-        {
-          id: '1',
-          userId: 'user1',
-          username: 'john_doe',
-          problemId: 'prob1',
-          problemTitle: 'Two Sum',
-          language: 'Java',
-          status: 'ACCEPTED',
-          submittedAt: new Date().toISOString(),
-          executionTime: 45,
-          memoryUsed: 42.3,
-        },
-        {
-          id: '2',
-          userId: 'user2',
-          username: 'jane_admin',
-          problemId: 'prob2',
-          problemTitle: 'Reverse String',
-          language: 'Python',
-          status: 'WRONG_ANSWER',
-          submittedAt: new Date(Date.now() - 3600000).toISOString(),
-          executionTime: 32,
-          memoryUsed: 38.1,
-        },
-      ]);
+      setSubmissions([]);
       setLoading(false);
     }
   };
 
-  const filteredSubmissions = submissions.filter(submission => {
+  const filteredSubmissions = submissions.filter((submission: Submission) => {
     const matchesSearch = submission.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          submission.problemTitle.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -94,7 +68,7 @@ function ViewSubmissions() {
     }
   };
 
-  const uniqueLanguages = Array.from(new Set(submissions.map(s => s.language)));
+  const uniqueLanguages = Array.from(new Set(submissions.map((s: Submission) => s.language)));
 
   if (loading) {
     return (

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getCurrentUser } from '../../lib/apiClient';
+import { getCurrentUser, adminAPI } from '../../lib/apiClient';
 
 interface DashboardStats {
   totalUsers: number;
@@ -38,22 +38,28 @@ function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      // TODO: Replace with actual API calls
-      // Simulating API call
-      setTimeout(() => {
-        setStats({
-          totalUsers: 1250,
-          totalProblems: 450,
-          totalSubmissions: 12500,
-          totalTopics: 25,
-          activeUsers: 320,
-          recentSignups: 45,
-        });
-        setLoading(false);
-      }, 500);
+      const data = await adminAPI.getStats();
+      setStats({
+        totalUsers: data.totalUsers || 0,
+        totalProblems: data.totalProblems || 0,
+        totalSubmissions: data.totalSubmissions || 0,
+        totalTopics: data.totalTopics || 0,
+        activeUsers: data.activeUsers || 0,
+        recentSignups: data.recentSignups || 0,
+      });
+      setLoading(false);
     } catch (error) {
       console.error('Failed to fetch dashboard stats:', error);
       setLoading(false);
+      // Set default values on error
+      setStats({
+        totalUsers: 0,
+        totalProblems: 0,
+        totalSubmissions: 0,
+        totalTopics: 0,
+        activeUsers: 0,
+        recentSignups: 0,
+      });
     }
   };
 

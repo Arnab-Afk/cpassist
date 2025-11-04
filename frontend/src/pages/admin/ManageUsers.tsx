@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../../lib/apiClient';
+import { adminAPI } from '../../lib/apiClient';
 
 interface User {
   id: string;
@@ -28,42 +28,19 @@ function ManageUsers() {
 
   const fetchUsers = async () => {
     try {
-      // TODO: Replace with actual admin API endpoint
-      const response = await apiClient.get('/admin/users');
-      setUsers(response.data);
+      const data = await adminAPI.users.getAll();
+      setUsers(Array.isArray(data) ? data : []);
       setLoading(false);
     } catch (error) {
       console.error('Failed to fetch users:', error);
-      // Mock data for development
-      setUsers([
-        {
-          id: '1',
-          username: 'john_doe',
-          email: 'john@example.com',
-          fullName: 'John Doe',
-          roles: ['ROLE_USER'],
-          enabled: true,
-          createdAt: new Date().toISOString(),
-          solvedProblems: ['1', '2', '3'],
-        },
-        {
-          id: '2',
-          username: 'jane_admin',
-          email: 'jane@example.com',
-          fullName: 'Jane Admin',
-          roles: ['ROLE_USER', 'ROLE_ADMIN'],
-          enabled: true,
-          createdAt: new Date().toISOString(),
-          solvedProblems: ['1', '2'],
-        },
-      ]);
+      setUsers([]);
       setLoading(false);
     }
   };
 
   const handleToggleEnabled = async (userId: string, enabled: boolean) => {
     try {
-      await apiClient.patch(`/admin/users/${userId}/toggle`, { enabled: !enabled });
+      await adminAPI.users.toggleEnabled(userId, !enabled);
       fetchUsers();
     } catch (error) {
       console.error('Failed to toggle user status:', error);
@@ -73,14 +50,14 @@ function ManageUsers() {
 
   const handleToggleRole = async (userId: string, role: string) => {
     try {
-      const user = users.find(u => u.id === userId);
+      const user = users.find((u: User) => u.id === userId);
       if (!user) return;
 
       const newRoles = user.roles.includes(role)
-        ? user.roles.filter(r => r !== role)
+        ? user.roles.filter((r: string) => r !== role)
         : [...user.roles, role];
 
-      await apiClient.patch(`/admin/users/${userId}/roles`, { roles: newRoles });
+      await adminAPI.users.updateRoles(userId, newRoles);
       fetchUsers();
     } catch (error) {
       console.error('Failed to update user roles:', error);
@@ -94,7 +71,7 @@ function ManageUsers() {
     }
 
     try {
-      await apiClient.delete(`/admin/users/${userId}`);
+      await adminAPI.users.delete(userId);
       fetchUsers();
     } catch (error) {
       console.error('Failed to delete user:', error);
@@ -102,7 +79,7 @@ function ManageUsers() {
     }
   };
 
-  const filteredUsers = users.filter(user => {
+  const filteredUsers = users.filter((user: User) => {
     const matchesSearch = user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (user.fullName?.toLowerCase().includes(searchTerm.toLowerCase()));
